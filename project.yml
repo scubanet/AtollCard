@@ -5,11 +5,18 @@ options:
   deploymentTarget:
     iOS: "17.0"
     macOS: "14.0"
+packages:
+  Supabase:
+    url: https://github.com/supabase/supabase-swift
+    from: 2.0.0
 targets:
   AtollCard:
     type: application
     supportedDestinations: [iOS, macOS]
     sources: [AtollCard]
+    dependencies:
+      - package: Supabase
+        product: Supabase
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.weckherlin.atollcard
