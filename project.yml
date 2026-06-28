@@ -1,0 +1,41 @@
+name: AtollCard
+options:
+  bundleIdPrefix: com.weckherlin
+  developmentLanguage: de
+  deploymentTarget:
+    iOS: "17.0"
+    macOS: "14.0"
+targets:
+  AtollCard:
+    type: application
+    supportedDestinations: [iOS, macOS]
+    sources: [AtollCard]
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.weckherlin.atollcard
+        SWIFT_VERSION: "5.0"
+        GENERATE_INFOPLIST_FILE: YES
+        INFOPLIST_KEY_UILaunchScreen_Generation: YES
+        INFOPLIST_KEY_ITSAppUsesNonExemptEncryption: NO
+        ENABLE_USER_SCRIPT_SANDBOXING: NO
+        DEVELOPMENT_TEAM: XK8V89P2QV
+        CODE_SIGN_STYLE: Automatic
+        CURRENT_PROJECT_VERSION: "1"
+        MARKETING_VERSION: "1.0"
+        TARGETED_DEVICE_FAMILY: "1,2"
+  AtollCardTests:
+    type: bundle.unit-test
+    supportedDestinations: [iOS, macOS]
+    sources: [AtollCardTests]
+    dependencies:
+      - target: AtollCard
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: YES
+        CODE_SIGN_STYLE: Automatic
+schemes:
+  AtollCard:
+    build:
+      targets: { AtollCard: all }
+    test:
+      targets: [AtollCardTests]
