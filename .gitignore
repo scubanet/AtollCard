@@ -1,0 +1,8 @@
+.DS_Store
+node_modules/
+web/dist/
+supabase/.branches
+supabase/.temp
+.env
+.env.*
+deploy_key
