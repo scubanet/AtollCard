@@ -8,28 +8,24 @@ final class AuthViewModelTests: XCTestCase {
         XCTAssertFalse(vm.isSignedIn)
         XCTAssertNil(vm.userId)
     }
-
     func test_signInSetsUserId() async {
         let id = UUID()
         let vm = AuthViewModel(authenticator: FakeAuthenticator(result: .success(id)))
-        await vm.signIn(email: "a@b.com", password: "pw")
+        await vm.signIn(idToken: "tok", nonce: "n")
         XCTAssertTrue(vm.isSignedIn)
         XCTAssertEqual(vm.userId, id)
     }
-
     func test_signInFailureSetsError() async {
         let vm = AuthViewModel(authenticator: FakeAuthenticator(result: .failure(
-            NSError(domain: "x", code: 1, userInfo: [NSLocalizedDescriptionKey: "bad creds"]))))
-        await vm.signIn(email: "a@b.com", password: "wrong")
+            NSError(domain: "x", code: 1, userInfo: [NSLocalizedDescriptionKey: "bad token"]))))
+        await vm.signIn(idToken: "tok", nonce: "n")
         XCTAssertFalse(vm.isSignedIn)
-        XCTAssertEqual(vm.errorMessage, "bad creds")
+        XCTAssertEqual(vm.errorMessage, "bad token")
     }
 }
 
 struct FakeAuthenticator: Authenticating {
     var result: Result<UUID, Error> = .failure(NSError(domain: "x", code: 0))
-    func signIn(email: String, password: String) async throws -> UUID {
-        try result.get()
-    }
+    func signIn(idToken: String, nonce: String) async throws -> UUID { try result.get() }
     func signOut() async throws {}
 }

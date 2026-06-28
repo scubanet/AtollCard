@@ -18,6 +18,6 @@ struct AppStores {
 /// App-target fake for SwiftUI previews (the test target has its own FakeAuthenticator).
 struct PreviewAuthenticator: Authenticating {
     var userId: UUID = UUID()
-    func signIn(email: String, password: String) async throws -> UUID { userId }
+    func signIn(idToken: String, nonce: String) async throws -> UUID { userId }
     func signOut() async throws {}
 }

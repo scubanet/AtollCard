@@ -1,7 +1,7 @@
 import Foundation
 
 protocol Authenticating {
-    func signIn(email: String, password: String) async throws -> UUID
+    func signIn(idToken: String, nonce: String) async throws -> UUID
     func signOut() async throws
 }
 
@@ -15,9 +15,9 @@ final class AuthViewModel: ObservableObject {
 
     init(authenticator: Authenticating) { self.authenticator = authenticator }
 
-    func signIn(email: String, password: String) async {
+    func signIn(idToken: String, nonce: String) async {
         do {
-            userId = try await authenticator.signIn(email: email, password: password)
+            userId = try await authenticator.signIn(idToken: idToken, nonce: nonce)
             errorMessage = nil
         } catch {
             userId = nil
