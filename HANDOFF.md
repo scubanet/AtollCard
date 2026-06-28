@@ -2,6 +2,16 @@
 
 ## Status (Stand 2026-06-28)
 
+**M1 vollständig + Sign in with Apple implementiert & verifiziert auf dem Mac.**
+
+### Sign in with Apple (Stand 2026-06-28, ersetzt E-Mail/Passwort)
+- Client: nativer `SignInWithAppleButton` + Nonce (zufällig+SHA256) → `signInWithIdToken(.apple)`; Naht `Authenticating.signIn(idToken:nonce:)`; Apple-`fullName`→`profiles.display_name` (best effort). Entitlement `com.apple.developer.applesignin` (iOS+macOS). **22 Tests grün**, beide Builds grün, App bootet zu „Mit Apple anmelden". Spec/Plan unter `docs/superpowers/`.
+- Apple Developer Portal erledigt: App-ID-Capability, Services ID `com.weckherlin.atollcard.web`, Key `ZS7M72CAK5` (Team `XK8V89P2QV`), `.p8` beim Owner.
+- **Prod-Supabase** (`bhkeplfkuismwyfiqcga`, eu-west-1): Migrationen 0001–0008 via MCP angewandt, Advisor-Hardening (`handle_new_user` execute revoked), live anon-Kontrakt verifiziert. Lokal `config.toml [auth.external.apple]` aktiviert.
+- **OFFEN (manuell):** Apple-Provider im Prod-Dashboard aktivieren (Authentication→Providers→Apple, Authorized Client IDs = `com.weckherlin.atollcard,com.weckherlin.atollcard.web`, Secret für nativ leer) + echter Login-Test auf Gerät/Sim mit Apple-ID. Prod-Anon-Key/URL via xcconfig (M4).
+
+---
+
 **M1 vollständig implementiert & verifiziert auf dem Mac.**
 
 - **Backend** (`supabase/`): Migrationen 0001–0007 + pgTAP 0001–0004. `supabase db reset` grün, `supabase test db` → **17/17 PASS**. TS-Typen generiert. Vex-RLS-Audit grün (`supabase/SECURITY-NOTES.md`), live anon-RPC-Kontrakt verifiziert (`get_public_card`/`record_card_event`).
