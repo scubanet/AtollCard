@@ -6,6 +6,7 @@ struct AtollCardApp: App {
     @StateObject private var authVM: AuthViewModel
 
     init() {
+        AtollFonts.registerBundledFonts()
         let stores = AppStores.default
         self.stores = stores
         _authVM = StateObject(wrappedValue: AuthViewModel(authenticator: stores.authenticator))
