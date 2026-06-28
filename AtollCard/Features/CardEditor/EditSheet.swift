@@ -5,17 +5,19 @@ import SwiftUI
 /// shell has a single, named entry point for editing.
 struct EditSheet: View {
     let store: CardStoring
+    let mediaStore: MediaStoring
     let ownerId: UUID
     let card: Card
 
     var body: some View {
-        CardEditorView(store: store, ownerId: ownerId, editing: card)
+        CardEditorView(store: store, mediaStore: mediaStore, ownerId: ownerId, editing: card)
     }
 }
 
 #Preview {
     EditSheet(
         store: AppStores.preview.cardStore,
+        mediaStore: AppStores.preview.mediaStore,
         ownerId: UUID(),
         card: Card(
             id: UUID(), ownerId: UUID(), slug: "demo",

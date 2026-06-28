@@ -28,8 +28,9 @@ struct OnboardingView: View {
         ("Anthrazit", "#2E3138"),
     ]
 
-    init(store: CardStoring, ownerId: UUID) {
-        _vm = StateObject(wrappedValue: CardEditorViewModel(store: store, ownerId: ownerId, editing: nil))
+    init(store: CardStoring, mediaStore: MediaStoring, ownerId: UUID) {
+        _vm = StateObject(wrappedValue: CardEditorViewModel(store: store, mediaStore: mediaStore,
+                                                            ownerId: ownerId, editing: nil))
     }
 
     var body: some View {
@@ -303,5 +304,6 @@ struct OnboardingView: View {
 }
 
 #Preview {
-    OnboardingView(store: AppStores.preview.cardStore, ownerId: UUID())
+    OnboardingView(store: AppStores.preview.cardStore,
+                   mediaStore: AppStores.preview.mediaStore, ownerId: UUID())
 }

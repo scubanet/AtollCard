@@ -4,6 +4,7 @@ import SwiftUI
 /// one makes it the active card and dismisses; a "+" entry opens onboarding.
 struct ManageCardsSheet: View {
     let store: CardStoring
+    let mediaStore: MediaStoring
     let ownerId: UUID
     @ObservedObject var vm: CardListViewModel
     @Binding var selectedCardId: UUID?
@@ -59,7 +60,7 @@ struct ManageCardsSheet: View {
             .sheet(isPresented: $isPresentingOnboarding, onDismiss: {
                 Task { await vm.load() }
             }) {
-                OnboardingView(store: store, ownerId: ownerId)
+                OnboardingView(store: store, mediaStore: mediaStore, ownerId: ownerId)
             }
         }
         #if os(iOS)
@@ -112,6 +113,7 @@ struct ManageCardsSheet: View {
 #Preview {
     ManageCardsSheet(
         store: AppStores.preview.cardStore,
+        mediaStore: AppStores.preview.mediaStore,
         ownerId: UUID(),
         vm: CardListViewModel(store: AppStores.preview.cardStore, ownerId: UUID()),
         selectedCardId: .constant(nil)

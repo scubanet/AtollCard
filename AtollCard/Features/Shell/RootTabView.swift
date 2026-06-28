@@ -4,6 +4,7 @@ import SwiftUI
 /// macOS: standard `TabView` (a floating bar is impractical there).
 struct RootTabView: View {
     private let store: CardStoring
+    private let mediaStore: MediaStoring
     private let ownerId: UUID
     @ObservedObject var authVM: AuthViewModel
 
@@ -11,8 +12,9 @@ struct RootTabView: View {
     @State private var selectedTab: ShellTab = .card
     @State private var selectedCardId: UUID?
 
-    init(store: CardStoring, ownerId: UUID, authVM: AuthViewModel) {
+    init(store: CardStoring, mediaStore: MediaStoring, ownerId: UUID, authVM: AuthViewModel) {
         self.store = store
+        self.mediaStore = mediaStore
         self.ownerId = ownerId
         self.authVM = authVM
         _vm = StateObject(wrappedValue: CardListViewModel(store: store, ownerId: ownerId))
@@ -48,7 +50,7 @@ struct RootTabView: View {
             Group {
                 switch selectedTab {
                 case .card:
-                    MyCardScreen(store: store, ownerId: ownerId, vm: vm,
+                    MyCardScreen(store: store, mediaStore: mediaStore, ownerId: ownerId, vm: vm,
                                  selectedCardId: $selectedCardId)
                 case .contacts:
                     ContactsView()
@@ -69,7 +71,7 @@ struct RootTabView: View {
     #if os(macOS)
     private var macShell: some View {
         TabView(selection: $selectedTab) {
-            MyCardScreen(store: store, ownerId: ownerId, vm: vm,
+            MyCardScreen(store: store, mediaStore: mediaStore, ownerId: ownerId, vm: vm,
                          selectedCardId: $selectedCardId)
                 .tabItem { Label("Karte", systemImage: "person.text.rectangle") }
                 .tag(ShellTab.card)
@@ -93,6 +95,7 @@ enum ShellTab: Hashable {
 #Preview {
     RootTabView(
         store: AppStores.preview.cardStore,
+        mediaStore: AppStores.preview.mediaStore,
         ownerId: UUID(),
         authVM: AuthViewModel(authenticator: AppStores.preview.authenticator)
     )

@@ -4,6 +4,7 @@ import SwiftUI
 /// card-selector pills, and the dark teal glass business card.
 struct MyCardScreen: View {
     let store: CardStoring
+    let mediaStore: MediaStoring
     let ownerId: UUID
     @ObservedObject var vm: CardListViewModel
     @Binding var selectedCardId: UUID?
@@ -50,12 +51,12 @@ struct MyCardScreen: View {
             case .share(let slug):
                 ShareSheet(slug: slug)
             case .edit(let card):
-                EditSheet(store: store, ownerId: ownerId, card: card)
+                EditSheet(store: store, mediaStore: mediaStore, ownerId: ownerId, card: card)
             case .manage:
-                ManageCardsSheet(store: store, ownerId: ownerId,
+                ManageCardsSheet(store: store, mediaStore: mediaStore, ownerId: ownerId,
                                  vm: vm, selectedCardId: $selectedCardId)
             case .onboarding:
-                OnboardingView(store: store, ownerId: ownerId)
+                OnboardingView(store: store, mediaStore: mediaStore, ownerId: ownerId)
             }
         }
     }
@@ -214,6 +215,7 @@ enum CardSheet: Identifiable {
 #Preview {
     MyCardScreen(
         store: AppStores.preview.cardStore,
+        mediaStore: AppStores.preview.mediaStore,
         ownerId: UUID(),
         vm: CardListViewModel(store: AppStores.preview.cardStore, ownerId: UUID()),
         selectedCardId: .constant(nil)

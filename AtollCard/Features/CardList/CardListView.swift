@@ -2,14 +2,16 @@ import SwiftUI
 
 struct CardListView: View {
     private let store: CardStoring
+    private let mediaStore: MediaStoring
     private let ownerId: UUID
     @ObservedObject var authVM: AuthViewModel
 
     @StateObject private var vm: CardListViewModel
     @State private var isPresentingEditor = false
 
-    init(store: CardStoring, ownerId: UUID, authVM: AuthViewModel) {
+    init(store: CardStoring, mediaStore: MediaStoring, ownerId: UUID, authVM: AuthViewModel) {
         self.store = store
+        self.mediaStore = mediaStore
         self.ownerId = ownerId
         self.authVM = authVM
         _vm = StateObject(wrappedValue: CardListViewModel(store: store, ownerId: ownerId))
@@ -57,7 +59,7 @@ struct CardListView: View {
             .sheet(isPresented: $isPresentingEditor, onDismiss: {
                 Task { await vm.load() }
             }) {
-                CardEditorView(store: store, ownerId: ownerId)
+                CardEditorView(store: store, mediaStore: mediaStore, ownerId: ownerId)
             }
         }
     }
@@ -66,6 +68,7 @@ struct CardListView: View {
 #Preview {
     CardListView(
         store: AppStores.preview.cardStore,
+        mediaStore: AppStores.preview.mediaStore,
         ownerId: UUID(),
         authVM: AuthViewModel(authenticator: AppStores.preview.authenticator)
     )

@@ -8,8 +8,9 @@ struct CardEditorView: View {
     @State private var newFieldLabel = ""
     @State private var newFieldValue = ""
 
-    init(store: CardStoring, ownerId: UUID, editing: Card? = nil) {
-        _vm = StateObject(wrappedValue: CardEditorViewModel(store: store, ownerId: ownerId, editing: editing))
+    init(store: CardStoring, mediaStore: MediaStoring, ownerId: UUID, editing: Card? = nil) {
+        _vm = StateObject(wrappedValue: CardEditorViewModel(store: store, mediaStore: mediaStore,
+                                                            ownerId: ownerId, editing: editing))
     }
 
     var body: some View {
@@ -107,5 +108,6 @@ private struct LabeledTextField: View {
 }
 
 #Preview {
-    CardEditorView(store: AppStores.preview.cardStore, ownerId: UUID())
+    CardEditorView(store: AppStores.preview.cardStore,
+                   mediaStore: AppStores.preview.mediaStore, ownerId: UUID())
 }

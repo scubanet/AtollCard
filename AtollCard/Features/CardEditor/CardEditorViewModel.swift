@@ -11,15 +11,22 @@ final class CardEditorViewModel: ObservableObject {
     @Published var visibility: CardVisibility = .private
     @Published var fields: [CardField] = []
     @Published var errorMessage: String?
+    @Published var pendingCoverData: Data?
+    @Published var pendingPhotoData: Data?
+    var coverURL: String?
+    var photoURL: String?
+    var logoURL: String?
 
     private let store: CardStoring
+    private let mediaStore: MediaStoring
     private let ownerId: UUID
     private let editingId: UUID?
 
     var isEditing: Bool { editingId != nil }
 
-    init(store: CardStoring, ownerId: UUID, editing: Card?) {
+    init(store: CardStoring, mediaStore: MediaStoring, ownerId: UUID, editing: Card?) {
         self.store = store
+        self.mediaStore = mediaStore
         self.ownerId = ownerId
         self.editingId = editing?.id
         if let c = editing {
@@ -30,6 +37,9 @@ final class CardEditorViewModel: ObservableObject {
             title = c.title ?? ""
             company = c.company ?? ""
             visibility = c.visibility
+            coverURL = c.coverURL
+            photoURL = c.photoURL
+            logoURL = c.logoURL
         }
     }
 
@@ -48,14 +58,20 @@ final class CardEditorViewModel: ObservableObject {
             return false
         }
         let id = editingId ?? UUID()
-        let card = Card(id: id, ownerId: ownerId, slug: slug, label: label,
-                        displayName: displayName,
-                        title: title.isEmpty ? nil : title,
-                        company: company.isEmpty ? nil : company,
-                        theme: "default", accentColor: accentColor,
-                        coverURL: nil, logoURL: nil, photoURL: nil,
-                        visibility: visibility, isActive: true)
         do {
+            if let data = pendingCoverData {
+                coverURL = try await mediaStore.upload(data, owner: ownerId, card: id, kind: .cover).absoluteString
+            }
+            if let data = pendingPhotoData {
+                photoURL = try await mediaStore.upload(data, owner: ownerId, card: id, kind: .photo).absoluteString
+            }
+            let card = Card(id: id, ownerId: ownerId, slug: slug, label: label,
+                            displayName: displayName,
+                            title: title.isEmpty ? nil : title,
+                            company: company.isEmpty ? nil : company,
+                            theme: "default", accentColor: accentColor,
+                            coverURL: coverURL, logoURL: logoURL, photoURL: photoURL,
+                            visibility: visibility, isActive: true)
             if editingId == nil {
                 try await store.create(card, fields: fields)
             } else {
