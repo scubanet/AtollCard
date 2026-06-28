@@ -27,6 +27,7 @@ targets:
         ENABLE_USER_SCRIPT_SANDBOXING: NO
         DEVELOPMENT_TEAM: XK8V89P2QV
         CODE_SIGN_STYLE: Automatic
+        CODE_SIGN_ENTITLEMENTS: AtollCard/AtollCard.entitlements
         CURRENT_PROJECT_VERSION: "1"
         MARKETING_VERSION: "1.0"
         TARGETED_DEVICE_FAMILY: "1,2"
