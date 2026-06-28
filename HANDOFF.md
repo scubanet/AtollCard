@@ -11,6 +11,12 @@
 - **Verifiziert (2026-06-28):** Apple-Provider im Prod-Dashboard aktiv (Client IDs gesetzt, Secret = ES256-JWT aus `.p8`, läuft **2026-12-25** ab → vor dann neu generieren mit `scratchpad/apple_secret.py`-Muster). Echter Apple-Login auf Sim grün. App-Default zeigt auf Prod `https://bhkeplfkuismwyfiqcga.supabase.co` (anon key in `SupabaseClient+Atoll.swift`, env-überschreibbar für lokal).
 - **M4-Rest:** Anon-Key/URL ggf. via xcconfig statt hartkodiert; Apple-Secret-Rotation (6-Monats-Ablauf).
 
+### M2 Sub-1 — Karten-Medien + Edit-Fixes (Stand 2026-06-28)
+- Cover + Profilfoto via `PhotosPicker` → `ImageDownscaler` (ImageIO, 1600/512px) → `MediaStoring`/`SupabaseMediaStore` → `card-media`-Bucket; Anzeige auf `BusinessCardView` (AsyncImage Foto rund + Cover-Hintergrund, Initialen/Gradient als Fallback). **26 Tests grün, iOS+macOS Build grün.**
+- Backlog-Fixes: `CardEditorViewModel` erhält bestehende Media-URLs beim Edit (Regressionstest); `slug_available`-RPC (Migration 0009, anon revoked) + `SupabaseCardStore.slugIsAvailable` nutzt sie. 0009 auf Prod live + verifiziert.
+- **OFFEN:** interaktiver Foto-Smoke (Foto wählen→speichern→Karte zeigt Bild, Objekt im Prod-Bucket). `coverURL/photoURL` im VM sind `var` (nicht `@Published`) — „Entfernen" nutzt `.id()`-Refresh; bei Bedarf auf `@Published` heben. Lokales Supabase braucht `db reset` für Apple-Config + 0009 (nur Prod angewandt).
+- M2-Reste: Kontakte-Empfang, Wallet/NFC/Widget/Watch, Signatur, Dark Mode/A11y, card-media privater Bucket.
+
 ---
 
 **M1 vollständig implementiert & verifiziert auf dem Mac.**
