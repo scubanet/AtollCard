@@ -8,7 +8,8 @@
 - Client: nativer `SignInWithAppleButton` + Nonce (zufällig+SHA256) → `signInWithIdToken(.apple)`; Naht `Authenticating.signIn(idToken:nonce:)`; Apple-`fullName`→`profiles.display_name` (best effort). Entitlement `com.apple.developer.applesignin` (iOS+macOS). **22 Tests grün**, beide Builds grün, App bootet zu „Mit Apple anmelden". Spec/Plan unter `docs/superpowers/`.
 - Apple Developer Portal erledigt: App-ID-Capability, Services ID `com.weckherlin.atollcard.web`, Key `ZS7M72CAK5` (Team `XK8V89P2QV`), `.p8` beim Owner.
 - **Prod-Supabase** (`bhkeplfkuismwyfiqcga`, eu-west-1): Migrationen 0001–0008 via MCP angewandt, Advisor-Hardening (`handle_new_user` execute revoked), live anon-Kontrakt verifiziert. Lokal `config.toml [auth.external.apple]` aktiviert.
-- **OFFEN (manuell):** Apple-Provider im Prod-Dashboard aktivieren (Authentication→Providers→Apple, Authorized Client IDs = `com.weckherlin.atollcard,com.weckherlin.atollcard.web`, Secret für nativ leer) + echter Login-Test auf Gerät/Sim mit Apple-ID. Prod-Anon-Key/URL via xcconfig (M4).
+- **Verifiziert (2026-06-28):** Apple-Provider im Prod-Dashboard aktiv (Client IDs gesetzt, Secret = ES256-JWT aus `.p8`, läuft **2026-12-25** ab → vor dann neu generieren mit `scratchpad/apple_secret.py`-Muster). Echter Apple-Login auf Sim grün. App-Default zeigt auf Prod `https://bhkeplfkuismwyfiqcga.supabase.co` (anon key in `SupabaseClient+Atoll.swift`, env-überschreibbar für lokal).
+- **M4-Rest:** Anon-Key/URL ggf. via xcconfig statt hartkodiert; Apple-Secret-Rotation (6-Monats-Ablauf).
 
 ---
 
