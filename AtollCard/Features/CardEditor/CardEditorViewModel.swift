@@ -16,6 +16,8 @@ final class CardEditorViewModel: ObservableObject {
     private let ownerId: UUID
     private let editingId: UUID?
 
+    var isEditing: Bool { editingId != nil }
+
     init(store: CardStoring, ownerId: UUID, editing: Card?) {
         self.store = store
         self.ownerId = ownerId

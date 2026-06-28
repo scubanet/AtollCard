@@ -63,7 +63,7 @@ struct CardEditorView: View {
                     }
                 }
             }
-            .navigationTitle("Neue Karte")
+            .navigationTitle(vm.isEditing ? "Karte bearbeiten" : "Neue Karte")
             #if os(iOS)
             .navigationBarTitleDisplayMode(.inline)
             #endif

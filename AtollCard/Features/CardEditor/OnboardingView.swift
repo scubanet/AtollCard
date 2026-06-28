@@ -11,6 +11,7 @@ struct OnboardingView: View {
 
     @State private var step = 0
     @State private var slugEdited = false
+    @State private var isAutoUpdatingSlug = false
     @State private var isSaving = false
 
     // Step 2 single-field entry
@@ -91,7 +92,11 @@ struct OnboardingView: View {
             field(label: "Anzeigename", text: $vm.displayName,
                   placeholder: "Dominik Weckherlin")
                 .onChange(of: vm.displayName) { _ in
-                    if !slugEdited { vm.slug = Self.normalizedSlug(from: vm.displayName) }
+                    if !slugEdited {
+                        isAutoUpdatingSlug = true
+                        vm.slug = SlugFormatter.normalize(vm.displayName)
+                        isAutoUpdatingSlug = false
+                    }
                 }
 
             field(label: "Bezeichnung der Karte", text: $vm.label, placeholder: "Arbeit")
@@ -101,7 +106,7 @@ struct OnboardingView: View {
             VStack(alignment: .leading, spacing: 6) {
                 field(label: "Profil-Adresse (Slug)", text: $vm.slug,
                       placeholder: "dominik-weckherlin", autocapitalize: false)
-                    .onChange(of: vm.slug) { _ in slugEdited = true }
+                    .onChange(of: vm.slug) { _ in if !isAutoUpdatingSlug { slugEdited = true } }
                 Text("card.atoll-os.com/\(vm.slug.isEmpty ? "…" : vm.slug)")
                     .font(.atoll(size: 13))
                     .foregroundStyle(Theme.text2)
@@ -229,7 +234,7 @@ struct OnboardingView: View {
         }
         // Final step: build fields, normalize slug, save.
         commitFields()
-        vm.slug = Self.normalizedSlug(from: vm.slug.isEmpty ? vm.displayName : vm.slug)
+        vm.slug = SlugFormatter.normalize(vm.slug.isEmpty ? vm.displayName : vm.slug)
         Task {
             isSaving = true
             let ok = await vm.save()
@@ -243,32 +248,6 @@ struct OnboardingView: View {
         if !phone.isEmpty { vm.addField(type: .phone, label: "Telefon", value: phone) }
         if !email.isEmpty { vm.addField(type: .email, label: "E-Mail", value: email) }
         if !web.isEmpty { vm.addField(type: .url, label: "Web", value: web) }
-    }
-
-    // MARK: - Slug normalization
-
-    /// "Jane Doe" -> "jane-doe": lowercase, trim, spaces->hyphens, strip
-    /// everything outside `[a-z0-9-]`, collapse repeated hyphens.
-    static func normalizedSlug(from input: String) -> String {
-        let lowered = input
-            .trimmingCharacters(in: .whitespacesAndNewlines)
-            .lowercased()
-            .replacingOccurrences(of: " ", with: "-")
-        let allowed = Set("abcdefghijklmnopqrstuvwxyz0123456789-")
-        let filtered = String(lowered.filter { allowed.contains($0) })
-        // collapse repeated hyphens
-        var result = ""
-        var lastWasHyphen = false
-        for ch in filtered {
-            if ch == "-" {
-                if !lastWasHyphen { result.append(ch) }
-                lastWasHyphen = true
-            } else {
-                result.append(ch)
-                lastWasHyphen = false
-            }
-        }
-        return result.trimmingCharacters(in: CharacterSet(charactersIn: "-"))
     }
 
     // MARK: - Reusable bits
