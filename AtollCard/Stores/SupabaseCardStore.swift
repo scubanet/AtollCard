@@ -49,12 +49,9 @@ final class SupabaseCardStore: CardStoring {
     }
 
     func slugIsAvailable(_ slug: String) async throws -> Bool {
-        let rows: [Card] = try await client.from("cards")
-            .select("id, owner_id, slug, label, display_name, title, company, theme, accent_color, cover_url, logo_url, photo_url, visibility, is_active")
-            .eq("slug", value: slug)
+        try await client.rpc("slug_available", params: ["p_slug": slug])
             .execute()
             .value
-        return rows.isEmpty
     }
 
     private struct CardFieldInsert: Encodable {
