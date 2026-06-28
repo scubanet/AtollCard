@@ -1,4 +1,5 @@
 import SwiftUI
+import PhotosUI
 
 /// 3-step onboarding that drives a `CardEditorViewModel`:
 /// 1. Name (+ optional title/company/label)
@@ -18,6 +19,10 @@ struct OnboardingView: View {
     @State private var phone = ""
     @State private var email = ""
     @State private var web = ""
+
+    // Step 3 images
+    @State private var photoItem: PhotosPickerItem?
+    @State private var coverItem: PhotosPickerItem?
 
     private let accents: [(name: String, hex: String)] = [
         ("Teal", "#0E7C86"),
@@ -135,7 +140,7 @@ struct OnboardingView: View {
     // MARK: - Step 3: Accent
 
     private var stepAccent: some View {
-        VStack(alignment: .leading, spacing: 20) {
+        VStack(alignment: .leading, spacing: 24) {
             stepHeader(title: "Wähle deine Farbe",
                        subtitle: "Der Akzent deiner Karte.")
 
@@ -166,6 +171,28 @@ struct OnboardingView: View {
                     .accessibilityAddTraits(vm.accentColor == accent.hex ? [.isSelected, .isButton] : .isButton)
                 }
             }
+
+            mediaRow(
+                label: "Profilfoto (optional)",
+                systemImage: "person.crop.circle",
+                selection: $photoItem,
+                pendingData: vm.pendingPhotoData,
+                isRound: true,
+                maxDimension: 512,
+                onPick: { vm.pendingPhotoData = $0 },
+                onRemove: { vm.pendingPhotoData = nil; photoItem = nil }
+            )
+
+            mediaRow(
+                label: "Coverbild (optional)",
+                systemImage: "photo",
+                selection: $coverItem,
+                pendingData: vm.pendingCoverData,
+                isRound: false,
+                maxDimension: 1600,
+                onPick: { vm.pendingCoverData = $0 },
+                onRemove: { vm.pendingCoverData = nil; coverItem = nil }
+            )
 
             if let error = vm.errorMessage {
                 Text(error)
@@ -262,6 +289,89 @@ struct OnboardingView: View {
                 .font(.atoll(size: 15))
                 .foregroundStyle(Theme.text2)
         }
+    }
+
+    /// A label-styled image picker with live preview + remove, matching the
+    /// onboarding's custom (non-Form) look.
+    @ViewBuilder
+    private func mediaRow(
+        label: String,
+        systemImage: String,
+        selection: Binding<PhotosPickerItem?>,
+        pendingData: Data?,
+        isRound: Bool,
+        maxDimension: CGFloat,
+        onPick: @escaping (Data) -> Void,
+        onRemove: @escaping () -> Void
+    ) -> some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text(label)
+                .font(.atoll(size: 13, weight: .semibold))
+                .foregroundStyle(Theme.text2)
+                .padding(.leading, 4)
+
+            HStack(spacing: 14) {
+                mediaPreview(pendingData: pendingData, isRound: isRound)
+
+                VStack(alignment: .leading, spacing: 8) {
+                    PhotosPicker(selection: selection, matching: .images) {
+                        Label("Auswählen", systemImage: systemImage)
+                            .font(.atoll(size: 15, weight: .semibold))
+                            .foregroundStyle(Theme.accentDefault)
+                    }
+                    if pendingData != nil {
+                        Button(role: .destructive, action: onRemove) {
+                            Text("Entfernen")
+                                .font(.atoll(size: 14))
+                                .foregroundStyle(.red)
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+                Spacer(minLength: 0)
+            }
+        }
+        .onChange(of: selection.wrappedValue) { _, item in
+            guard let item else { return }
+            Task {
+                if let data = try? await item.loadTransferable(type: Data.self),
+                   let small = ImageDownscaler.downscaledJPEG(data, maxDimension: maxDimension, quality: 0.8) {
+                    onPick(small)
+                }
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func mediaPreview(pendingData: Data?, isRound: Bool) -> some View {
+        let shape = RoundedRectangle(cornerRadius: isRound ? 100 : 12, style: .continuous)
+        let size: CGFloat = 64
+
+        Group {
+            if let data = pendingData, let image = decodedImage(from: data) {
+                image.resizable().scaledToFill()
+            } else {
+                Theme.surface.overlay(
+                    Image(systemName: isRound ? "person.crop.circle" : "photo")
+                        .font(.system(size: 22))
+                        .foregroundStyle(Theme.text2)
+                )
+            }
+        }
+        .frame(width: isRound ? size : size * 1.6, height: size)
+        .clipShape(shape)
+        .overlay(shape.strokeBorder(Theme.separator, lineWidth: 1))
+        .accessibilityHidden(true)
+    }
+
+    private func decodedImage(from data: Data) -> Image? {
+        #if os(iOS)
+        guard let ui = UIImage(data: data) else { return nil }
+        return Image(uiImage: ui)
+        #else
+        guard let ns = NSImage(data: data) else { return nil }
+        return Image(nsImage: ns)
+        #endif
     }
 
     private enum KeyboardKind { case `default`, email, phone, url }

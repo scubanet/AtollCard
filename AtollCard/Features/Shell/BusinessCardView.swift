@@ -96,7 +96,28 @@ struct BusinessCardView: View {
         accent.opacity(0.95)
     }
 
+    @ViewBuilder
     private var avatar: some View {
+        Group {
+            if let photoURL = card.photoURL, let url = URL(string: photoURL), !photoURL.isEmpty {
+                AsyncImage(url: url) { phase in
+                    if let img = phase.image {
+                        img.resizable().scaledToFill()
+                    } else {
+                        initialsAvatar
+                    }
+                }
+                .frame(width: 76, height: 76)
+                .clipShape(Circle())
+            } else {
+                initialsAvatar
+            }
+        }
+        .shadow(color: accent.opacity(0.6), radius: 18, x: 0, y: 0)
+        .accessibilityHidden(true)
+    }
+
+    private var initialsAvatar: some View {
         Circle()
             .fill(accent)
             .frame(width: 76, height: 76)
@@ -105,11 +126,11 @@ struct BusinessCardView: View {
                     .font(.atoll(size: 26, weight: .bold))
                     .foregroundStyle(.white)
             )
-            .shadow(color: accent.opacity(0.6), radius: 18, x: 0, y: 0)
-            .accessibilityHidden(true)
     }
 
     /// Dark base with a teal radial glow emanating from the top-left (avatar).
+    /// If a cover image exists it is layered on top of the glow; the gradient
+    /// remains the placeholder/failure fallback.
     private var cardBackground: some View {
         ZStack {
             Color(hex: "#0E1116")
@@ -119,12 +140,24 @@ struct BusinessCardView: View {
                 startRadius: 0,
                 endRadius: 320
             )
+            if let coverURL = card.coverURL, let url = URL(string: coverURL), !coverURL.isEmpty {
+                AsyncImage(url: url) { phase in
+                    if let img = phase.image {
+                        img.resizable().scaledToFill()
+                    } else {
+                        Color.clear
+                    }
+                }
+                // Darken for legibility of the white text over arbitrary photos.
+                .overlay(Color.black.opacity(0.35))
+            }
             LinearGradient(
                 colors: [Color.white.opacity(0.04), Color.clear],
                 startPoint: .top,
                 endPoint: .bottom
             )
         }
+        .accessibilityHidden(true)
     }
 }
 
