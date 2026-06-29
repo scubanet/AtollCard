@@ -11,11 +11,12 @@ struct ManageCardsSheet: View {
 
     @Environment(\.dismiss) private var dismiss
     @State private var isPresentingOnboarding = false
+    @State private var pendingDeletion: Card?
 
     var body: some View {
         NavigationStack {
-            ScrollView {
-                VStack(spacing: 12) {
+            List {
+                Section {
                     ForEach(vm.cards) { card in
                         Button {
                             selectedCardId = card.id
@@ -24,8 +25,27 @@ struct ManageCardsSheet: View {
                             row(for: card)
                         }
                         .buttonStyle(.plain)
+                        .listRowInsets(EdgeInsets(top: 6, leading: 0, bottom: 6, trailing: 0))
+                        .listRowBackground(Color.clear)
+                        .listRowSeparator(.hidden)
+                        .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                            Button(role: .destructive) {
+                                pendingDeletion = card
+                            } label: {
+                                Label("Löschen", systemImage: "trash")
+                            }
+                        }
+                        .contextMenu {
+                            Button(role: .destructive) {
+                                pendingDeletion = card
+                            } label: {
+                                Label("Karte löschen", systemImage: "trash")
+                            }
+                        }
                     }
+                }
 
+                Section {
                     Button {
                         isPresentingOnboarding = true
                     } label: {
@@ -43,10 +63,31 @@ struct ManageCardsSheet: View {
                         .glassSurface(cornerRadius: 18)
                     }
                     .buttonStyle(.plain)
+                    .listRowInsets(EdgeInsets(top: 6, leading: 0, bottom: 6, trailing: 0))
+                    .listRowBackground(Color.clear)
+                    .listRowSeparator(.hidden)
                 }
-                .padding(20)
             }
+            .listStyle(.plain)
+            .scrollContentBackground(.hidden)
+            .contentMargins(.horizontal, 20, for: .scrollContent)
             .background(Theme.appBG.ignoresSafeArea())
+            .confirmationDialog(
+                "Diese Karte löschen?",
+                isPresented: Binding(
+                    get: { pendingDeletion != nil },
+                    set: { if !$0 { pendingDeletion = nil } }
+                ),
+                titleVisibility: .visible,
+                presenting: pendingDeletion
+            ) { card in
+                Button("Löschen", role: .destructive) {
+                    Task { await delete(card) }
+                }
+                Button("Abbrechen", role: .cancel) { pendingDeletion = nil }
+            } message: { card in
+                Text("\(card.label) wird dauerhaft entfernt. Dies kann nicht rückgängig gemacht werden.")
+            }
             .navigationTitle("Karten")
             #if os(iOS)
             .navigationBarTitleDisplayMode(.inline)
@@ -66,6 +107,17 @@ struct ManageCardsSheet: View {
         #if os(iOS)
         .presentationDetents([.medium, .large])
         #endif
+    }
+
+    /// Deletes a card via the view model and keeps the active selection consistent:
+    /// if the deleted card was the active one, fall back to the first remaining card (or nil).
+    private func delete(_ card: Card) async {
+        let wasSelected = selectedCardId == card.id
+        await vm.delete(card.id)
+        pendingDeletion = nil
+        if wasSelected {
+            selectedCardId = vm.cards.first?.id
+        }
     }
 
     private func row(for card: Card) -> some View {

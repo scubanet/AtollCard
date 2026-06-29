@@ -21,4 +21,14 @@ final class CardListViewModel: ObservableObject {
             errorMessage = error.localizedDescription
         }
     }
+
+    func delete(_ cardId: UUID) async {
+        do {
+            try await store.delete(cardId)
+            cards = try await store.cards(forOwner: ownerId)
+            errorMessage = nil
+        } catch {
+            errorMessage = error.localizedDescription
+        }
+    }
 }
