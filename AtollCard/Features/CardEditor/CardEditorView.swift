@@ -124,6 +124,7 @@ struct CardEditorView: View {
                     }
                 }
             }
+            .task { await vm.load() }
         }
     }
 

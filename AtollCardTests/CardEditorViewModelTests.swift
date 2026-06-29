@@ -78,4 +78,26 @@ final class CardEditorViewModelTests: XCTestCase {
         XCTAssertEqual(card.photoURL, "https://x/photo.jpg")
         XCTAssertEqual(media.stored.count, 0)
     }
+
+    @MainActor
+    func test_loadFetchesExistingFieldsAndSavePreservesThem() async throws {
+        let store = InMemoryCardStore()
+        let media = InMemoryMediaStore(publicBase: "https://x.supabase.co/storage/v1/object/public")
+        let owner = UUID()
+        let card = Card(id: UUID(), ownerId: owner, slug: "j", displayName: "J",
+            title: nil, company: nil, theme: "default", logoURL: nil, photoURL: nil,
+            visibility: .private, isActive: true)
+        let field = CardField(id: UUID(), type: .email, label: "Work", value: "j@x.com", sortOrder: 0)
+        try await store.create(card, fields: [field])
+
+        let vm = CardEditorViewModel(store: store, mediaStore: media, ownerId: owner, editing: card)
+        XCTAssertTrue(vm.fields.isEmpty, "fields are not loaded at init")
+        await vm.load()
+        XCTAssertEqual(vm.fields.map(\.value), ["j@x.com"], "load() must fetch existing fields")
+
+        let ok = await vm.save()
+        XCTAssertTrue(ok)
+        let saved = try await store.fields(forCard: card.id)
+        XCTAssertEqual(saved.map(\.value), ["j@x.com"], "save must preserve existing fields")
+    }
 }

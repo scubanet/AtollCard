@@ -43,6 +43,15 @@ final class CardEditorViewModel: ObservableObject {
         }
     }
 
+    func load() async {
+        guard let id = editingId else { return }
+        do {
+            fields = try await store.fields(forCard: id)
+        } catch {
+            errorMessage = error.localizedDescription
+        }
+    }
+
     func addField(type: CardFieldType, label: String, value: String) {
         fields.append(CardField(id: UUID(), type: type, label: label,
                                 value: value, sortOrder: fields.count))
