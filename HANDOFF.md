@@ -15,7 +15,12 @@
 - Cover + Profilfoto via `PhotosPicker` → `ImageDownscaler` (ImageIO, 1600/512px) → `MediaStoring`/`SupabaseMediaStore` → `card-media`-Bucket; Anzeige auf `BusinessCardView` (AsyncImage Foto rund + Cover-Hintergrund, Initialen/Gradient als Fallback). **26 Tests grün, iOS+macOS Build grün.**
 - Backlog-Fixes: `CardEditorViewModel` erhält bestehende Media-URLs beim Edit (Regressionstest); `slug_available`-RPC (Migration 0009, anon revoked) + `SupabaseCardStore.slugIsAvailable` nutzt sie. 0009 auf Prod live + verifiziert.
 - **OFFEN:** interaktiver Foto-Smoke (Foto wählen→speichern→Karte zeigt Bild, Objekt im Prod-Bucket). `coverURL/photoURL` im VM sind `var` (nicht `@Published`) — „Entfernen" nutzt `.id()`-Refresh; bei Bedarf auf `@Published` heben. Lokales Supabase braucht `db reset` für Apple-Config + 0009 (nur Prod angewandt).
-- M2-Reste: Wallet/NFC/Watch, Signatur, card-media privater Bucket.
+- M2-Reste: Wallet/NFC/Watch, card-media privater Bucket.
+
+### M2 Sub-5 — E-Mail-Signatur (Stand 2026-06-29)
+- `EmailSignatureBuilder` (rein): `html(for:fields:)` (inline-styled, HTML-escaped, kein Foto) + `plainText(...)`. `EmailSignatureView` aus `ShareSheet` erreichbar: Vorschau + Kopieren (HTML+Plain in Zwischenablage) + Teilen (ShareLink). **40 iOS-Tests grün, iOS+macOS Build grün.**
+- ShareSheet hält jetzt `Card` (statt nur `slug`) + `store` (für Feld-Laden).
+- Spätere Härtung (out of scope): `tel:`-Whitespace normalisieren, url-Feld-Scheme-Allowlist.
 
 ### M2 Sub-4 — Home-Screen Widget (Stand 2026-06-29)
 - WidgetKit-Extension `AtollCardWidget` (iOS-only): **small** = QR-Hero, **medium** = Name + QR der aktiven Karte. App schreibt `SharedCardSnapshot` (slug/name/accent) in App Group `group.com.weckherlin.atollcard`; Widget liest sie; `WidgetCenter.reloadAllTimelines()` bei Kartenwechsel/Sign-out.
