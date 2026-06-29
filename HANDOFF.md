@@ -59,6 +59,12 @@ xcodebuild build -scheme AtollCard -destination 'platform=macOS,arch=arm64'
 ```
 Hinweis: Der Homebrew-`supabase`-Wrapper enthielt ein arm64-Binary mit ungültiger Signatur (killed:9). Falls erneut: `codesign --force --sign - <…/@supabase/cli-darwin-arm64/bin/supabase>`.
 
+### Editor-Fixes + Karten-/Feld-Verwaltung (Stand 2026-06-29)
+- **Bugfix (Datenverlust):** Editor lädt jetzt bestehende `card_fields` beim Bearbeiten (`CardEditorViewModel.load()` + `.task` in CardEditorView) — vorher wurden Telefon/E-Mail beim Speichern still gelöscht. Regressionstest.
+- **Felder editieren/löschen:** editierbare Label/Wert-Zeilen + swipe-to-delete (`removeFields(at:)`).
+- **Karte löschen:** `CardListViewModel.delete(_:)`; ManageCardsSheet swipe-to-delete + Bestätigung + Context-Menu (macOS), aktive-Karten-Selektion wird zurückgesetzt. ManageCardsSheet von ScrollView auf `List` umgestellt (für Swipe) — Vera: Glas-Spacing/Detents visuell prüfen.
+- **37 iOS-Tests grün**, iOS+macOS Build grün.
+
 ## Verträge (über alle Schichten identisch)
 - Profil-URL: `https://card.atoll-os.com/<slug>`.
 - RPC `get_public_card(p_slug)` → `public_card`(display_name,title,company,theme,accent_color,cover_url,logo_url,photo_url,fields jsonb).
