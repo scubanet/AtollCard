@@ -30,7 +30,7 @@ struct MyCardScreen: View {
                     BusinessCardView(
                         card: card,
                         fields: fields,
-                        onShare: { presentedSheet = .share(card.slug) },
+                        onShare: { presentedSheet = .share(card) },
                         onEdit: { presentedSheet = .edit(card) }
                     )
                     .padding(.top, 4)
@@ -48,8 +48,8 @@ struct MyCardScreen: View {
             Task { await vm.load(); await loadFields() }
         }) { sheet in
             switch sheet {
-            case .share(let slug):
-                ShareSheet(slug: slug)
+            case .share(let card):
+                ShareSheet(card: card, store: store)
             case .edit(let card):
                 EditSheet(store: store, mediaStore: mediaStore, ownerId: ownerId, card: card)
             case .manage:
@@ -198,14 +198,14 @@ private struct CardPill: View {
 }
 
 enum CardSheet: Identifiable {
-    case share(String)
+    case share(Card)
     case edit(Card)
     case manage
     case onboarding
 
     var id: String {
         switch self {
-        case .share(let slug): return "share-\(slug)"
+        case .share(let card): return "share-\(card.id)"
         case .edit(let card): return "edit-\(card.id)"
         case .manage: return "manage"
         case .onboarding: return "onboarding"

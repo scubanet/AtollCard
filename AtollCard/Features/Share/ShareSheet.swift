@@ -4,11 +4,12 @@ import SwiftUI
 /// Share sheet matching `share.png`: large QR code, the profile URL, a native
 /// share button, and Wallet/NFC/Widget option rows (placeholders for M2).
 struct ShareSheet: View {
-    let slug: String
+    let card: Card
+    let store: CardStoring
     @Environment(\.dismiss) private var dismiss
     @State private var showComingSoon = false
 
-    private var url: URL { QRCodeGenerator.profileURL(forSlug: slug) }
+    private var url: URL { QRCodeGenerator.profileURL(forSlug: card.slug) }
 
     var body: some View {
         NavigationStack {
@@ -44,6 +45,13 @@ struct ShareSheet: View {
                     .accessibilityLabel("Profil teilen")
 
                     VStack(spacing: 0) {
+                        NavigationLink {
+                            EmailSignatureView(card: card, store: store)
+                        } label: {
+                            NavRowLabel(icon: "envelope", title: "E-Mail-Signatur")
+                        }
+                        .buttonStyle(.plain)
+
                         OptionRow(icon: "wallet.pass", title: "Zu Wallet hinzufügen") { showComingSoon = true }
                         OptionRow(icon: "wave.3.right", title: "Per NFC teilen") { showComingSoon = true }
                         OptionRow(icon: "square.text.square", title: "Als Widget anzeigen") { showComingSoon = true }
@@ -83,6 +91,30 @@ struct ShareSheet: View {
     }
 }
 
+private struct NavRowLabel: View {
+    let icon: String
+    let title: String
+
+    var body: some View {
+        HStack(spacing: 14) {
+            Image(systemName: icon)
+                .font(.system(size: 16, weight: .medium))
+                .foregroundStyle(Theme.accentDefault)
+                .frame(width: 30)
+            Text(title)
+                .font(.atoll(size: 16, weight: .medium))
+                .foregroundStyle(Theme.text)
+            Spacer()
+            Image(systemName: "chevron.right")
+                .font(.system(size: 13, weight: .semibold))
+                .foregroundStyle(Theme.text2)
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 14)
+        .contentShape(Rectangle())
+    }
+}
+
 private struct OptionRow: View {
     let icon: String
     let title: String
@@ -115,5 +147,14 @@ private struct OptionRow: View {
 }
 
 #Preview {
-    ShareSheet(slug: "dominik-weckherlin")
+    ShareSheet(
+        card: Card(
+            id: UUID(), ownerId: UUID(), slug: "dominik-weckherlin",
+            label: "Arbeit", displayName: "Dominik Weckherlin",
+            title: "PADI Course Director", company: "Deep Blue Diving",
+            theme: "default", accentColor: "#0E7C86",
+            visibility: .public, isActive: true
+        ),
+        store: AppStores.preview.cardStore
+    )
 }
