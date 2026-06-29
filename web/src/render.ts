@@ -20,12 +20,14 @@ function safeURL(raw: string | null): string | null {
 function fieldRow(f: PublicField): string {
   const label = escapeHTML(f.label)
   const value = escapeHTML(f.value)
-  let href = '#'
-  if (f.type === 'email') href = `mailto:${value}`
-  else if (f.type === 'phone') href = `tel:${value}`
-  else if (f.type === 'url' || f.type === 'social') href = value
-  return `<li class="field field--${f.type}"><span class="label">${label}</span>` +
-    `<a class="value" href="${href}">${value}</a></li>`
+  let href: string | null = null
+  if (f.type === 'email') href = `mailto:${f.value.trim()}`
+  else if (f.type === 'phone') href = `tel:${f.value.replace(/\s+/g, '')}`
+  else if (f.type === 'url' || f.type === 'social') href = safeURL(f.value)
+  const inner = href
+    ? `<a class="value" href="${escapeHTML(href)}">${value}</a>`
+    : `<span class="value">${value}</span>`
+  return `<li class="field field--${f.type}"><span class="label">${label}</span>${inner}</li>`
 }
 
 export function renderCard(card: PublicCard): string {

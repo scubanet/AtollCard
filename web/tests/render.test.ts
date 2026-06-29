@@ -33,3 +33,35 @@ describe('renderCard', () => {
 describe('renderNotFound', () => {
   it('shows a friendly message', () => { expect(renderNotFound()).toContain('nicht gefunden') })
 })
+
+function cardWith(fields: { type: string; label: string; value: string }[]) {
+  return {
+    display_name: 'Jane', title: null, company: null, theme: 'default',
+    accent_color: '#0E7C86', cover_url: null, logo_url: null, photo_url: null,
+    fields,
+  } as any
+}
+
+describe('fieldRow link safety', () => {
+  it('does not emit a javascript: href for a url field', () => {
+    const html = renderCard(cardWith([{ type: 'url', label: 'Web', value: 'javascript:alert(1)' }]))
+    expect(html).not.toContain('href="javascript')
+    expect(html).toContain('<span class="value">javascript:alert(1)</span>')
+  })
+  it('emits an https href for a valid url field', () => {
+    const html = renderCard(cardWith([{ type: 'url', label: 'Web', value: 'https://acme.example' }]))
+    expect(html).toContain('href="https://acme.example')
+  })
+  it('treats social the same (no unsafe scheme)', () => {
+    const html = renderCard(cardWith([{ type: 'social', label: 'X', value: 'data:text/html,evil' }]))
+    expect(html).not.toContain('href="data:')
+  })
+  it('builds mailto/tel for email/phone', () => {
+    const html = renderCard(cardWith([
+      { type: 'email', label: 'M', value: 'a@b.co' },
+      { type: 'phone', label: 'P', value: '+41 79 1' },
+    ]))
+    expect(html).toContain('href="mailto:a@b.co')
+    expect(html).toContain('href="tel:+41791"')
+  })
+})
