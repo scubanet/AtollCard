@@ -16,6 +16,7 @@ struct AtollCardApp: App {
         WindowGroup {
             if let userId = authVM.userId {
                 RootTabView(store: stores.cardStore, mediaStore: stores.mediaStore,
+                            connectionStore: stores.connectionStore,
                             ownerId: userId, authVM: authVM)
             } else {
                 SignInView(authVM: authVM)

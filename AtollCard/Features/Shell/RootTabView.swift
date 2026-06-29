@@ -5,6 +5,7 @@ import SwiftUI
 struct RootTabView: View {
     private let store: CardStoring
     private let mediaStore: MediaStoring
+    private let connectionStore: ConnectionStoring
     private let ownerId: UUID
     @ObservedObject var authVM: AuthViewModel
 
@@ -12,9 +13,11 @@ struct RootTabView: View {
     @State private var selectedTab: ShellTab = .card
     @State private var selectedCardId: UUID?
 
-    init(store: CardStoring, mediaStore: MediaStoring, ownerId: UUID, authVM: AuthViewModel) {
+    init(store: CardStoring, mediaStore: MediaStoring, connectionStore: ConnectionStoring,
+         ownerId: UUID, authVM: AuthViewModel) {
         self.store = store
         self.mediaStore = mediaStore
+        self.connectionStore = connectionStore
         self.ownerId = ownerId
         self.authVM = authVM
         _vm = StateObject(wrappedValue: CardListViewModel(store: store, ownerId: ownerId))
@@ -53,7 +56,7 @@ struct RootTabView: View {
                     MyCardScreen(store: store, mediaStore: mediaStore, ownerId: ownerId, vm: vm,
                                  selectedCardId: $selectedCardId)
                 case .contacts:
-                    ContactsView()
+                    ContactsView(store: connectionStore, ownerId: ownerId)
                 case .settings:
                     SettingsView(authVM: authVM)
                 }
@@ -76,7 +79,7 @@ struct RootTabView: View {
                 .tabItem { Label("Karte", systemImage: "person.text.rectangle") }
                 .tag(ShellTab.card)
 
-            ContactsView()
+            ContactsView(store: connectionStore, ownerId: ownerId)
                 .tabItem { Label("Kontakte", systemImage: "person.2") }
                 .tag(ShellTab.contacts)
 
@@ -96,6 +99,7 @@ enum ShellTab: Hashable {
     RootTabView(
         store: AppStores.preview.cardStore,
         mediaStore: AppStores.preview.mediaStore,
+        connectionStore: AppStores.preview.connectionStore,
         ownerId: UUID(),
         authVM: AuthViewModel(authenticator: AppStores.preview.authenticator)
     )
