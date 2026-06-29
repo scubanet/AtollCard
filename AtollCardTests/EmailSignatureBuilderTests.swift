@@ -18,7 +18,7 @@ final class EmailSignatureBuilderTests: XCTestCase {
         XCTAssertTrue(html.contains("CTO"))
         XCTAssertTrue(html.contains("Acme"))
         XCTAssertTrue(html.contains("mailto:jane@acme.com"))
-        XCTAssertTrue(html.contains("tel:+41 79"))
+        XCTAssertTrue(html.contains("tel:+4179"))
         XCTAssertTrue(html.contains("card.atoll-os.com/jane-doe"))
         XCTAssertFalse(html.contains("<img"), "no photo in signature")
     }
@@ -28,6 +28,24 @@ final class EmailSignatureBuilderTests: XCTestCase {
         let html = EmailSignatureBuilder.html(for: card(), fields: f)
         XCTAssertTrue(html.contains("A &amp; &lt;B&gt;"))
         XCTAssertFalse(html.contains("A & <B>"))
+    }
+
+    func test_htmlRejectsUnsafeUrlScheme() {
+        let f = [CardField(id: UUID(), type: .url, label: "Web", value: "javascript:alert(1)", sortOrder: 0)]
+        let html = EmailSignatureBuilder.html(for: card(), fields: f)
+        XCTAssertFalse(html.contains("href=\"javascript"))
+        XCTAssertTrue(html.contains("javascript:alert(1)"))
+    }
+    func test_htmlKeepsHttpsUrl() {
+        let f = [CardField(id: UUID(), type: .url, label: "Web", value: "https://acme.example", sortOrder: 0)]
+        let html = EmailSignatureBuilder.html(for: card(), fields: f)
+        XCTAssertTrue(html.contains("href=\"https://acme.example"))
+    }
+    func test_htmlNormalizesTelWhitespace() {
+        let f = [CardField(id: UUID(), type: .phone, label: "P", value: "+41 79 123", sortOrder: 0)]
+        let html = EmailSignatureBuilder.html(for: card(), fields: f)
+        XCTAssertTrue(html.contains("href=\"tel:+4179123\""))
+        XCTAssertTrue(html.contains("+41 79 123"))
     }
 
     func test_plainTextHasNoTags() {

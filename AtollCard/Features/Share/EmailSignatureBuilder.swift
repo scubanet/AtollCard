@@ -8,13 +8,22 @@ enum EmailSignatureBuilder {
         var rows = ""
         for f in fields {
             let label = esc(f.label)
-            let value = esc(f.value)
+            let display = esc(f.value)
             let content: String
             switch f.type {
-            case .phone: content = "<a href=\"tel:\(value)\" style=\"color:\(accent);text-decoration:none\">\(value)</a>"
-            case .email: content = "<a href=\"mailto:\(value)\" style=\"color:\(accent);text-decoration:none\">\(value)</a>"
-            case .url:   content = "<a href=\"\(value)\" style=\"color:\(accent);text-decoration:none\">\(value)</a>"
-            case .social, .address, .custom: content = value
+            case .phone:
+                let tel = f.value.filter { !$0.isWhitespace }
+                content = "<a href=\"tel:\(esc(tel))\" style=\"color:\(accent);text-decoration:none\">\(display)</a>"
+            case .email:
+                content = "<a href=\"mailto:\(esc(f.value))\" style=\"color:\(accent);text-decoration:none\">\(display)</a>"
+            case .url:
+                if let href = safeHref(f.value) {
+                    content = "<a href=\"\(esc(href))\" style=\"color:\(accent);text-decoration:none\">\(display)</a>"
+                } else {
+                    content = display
+                }
+            case .social, .address, .custom:
+                content = display
             }
             rows += "<div style=\"font-size:13px;color:#555555;margin-top:2px\">\(label): \(content)</div>"
         }
@@ -37,6 +46,12 @@ enum EmailSignatureBuilder {
         for f in fields { lines.append("\(f.label): \(f.value)") }
         lines.append("https://card.atoll-os.com/\(card.slug)")
         return lines.joined(separator: "\n")
+    }
+
+    private static func safeHref(_ value: String) -> String? {
+        let t = value.trimmingCharacters(in: .whitespacesAndNewlines)
+        let l = t.lowercased()
+        return (l.hasPrefix("http://") || l.hasPrefix("https://")) ? t : nil
     }
 
     private static func esc(_ s: String) -> String {
