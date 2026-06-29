@@ -9,7 +9,7 @@ struct SignInView: View {
         VStack(spacing: 24) {
             Spacer()
             Text("AtollCard")
-                .font(.atoll(size: 30, weight: .bold))
+                .font(.atoll(size: 30, weight: .bold, relativeTo: .title2))
                 .foregroundStyle(Theme.text)
             SignInWithAppleButton(.signIn) { request in
                 let nonce = NonceGenerator.randomNonceString()

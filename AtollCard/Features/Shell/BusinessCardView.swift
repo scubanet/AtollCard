@@ -46,7 +46,7 @@ struct BusinessCardView: View {
 
             // Identity
             Text(card.displayName)
-                .font(.atoll(size: 28, weight: .bold))
+                .font(.atoll(size: 28, weight: .bold, relativeTo: .title2))
                 .foregroundStyle(.white)
                 .fixedSize(horizontal: false, vertical: true)
 
@@ -123,7 +123,7 @@ struct BusinessCardView: View {
             .frame(width: 76, height: 76)
             .overlay(
                 Text(initials)
-                    .font(.atoll(size: 26, weight: .bold))
+                    .font(.atoll(size: 26, weight: .bold, relativeTo: .title2))
                     .foregroundStyle(.white)
             )
     }

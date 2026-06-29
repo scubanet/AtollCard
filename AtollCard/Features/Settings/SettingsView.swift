@@ -52,7 +52,7 @@ struct SettingsView: View {
                 .font(.atoll(size: 14, weight: .medium))
                 .foregroundStyle(Theme.text2)
             Text("Einstellungen")
-                .font(.atoll(size: 30, weight: .bold))
+                .font(.atoll(size: 30, weight: .bold, relativeTo: .title2))
                 .foregroundStyle(Theme.text)
         }
         .frame(maxWidth: .infinity, alignment: .leading)

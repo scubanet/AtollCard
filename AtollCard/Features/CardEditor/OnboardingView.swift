@@ -283,7 +283,7 @@ struct OnboardingView: View {
     private func stepHeader(title: String, subtitle: String) -> some View {
         VStack(alignment: .leading, spacing: 6) {
             Text(title)
-                .font(.atoll(size: 26, weight: .bold))
+                .font(.atoll(size: 26, weight: .bold, relativeTo: .title2))
                 .foregroundStyle(Theme.text)
             Text(subtitle)
                 .font(.atoll(size: 15))

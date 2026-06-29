@@ -40,7 +40,7 @@ struct ConnectionDetailView: View {
     private var heading: some View {
         VStack(alignment: .leading, spacing: 4) {
             Text(connection.name)
-                .font(.atoll(size: 24, weight: .bold))
+                .font(.atoll(size: 24, weight: .bold, relativeTo: .title2))
                 .foregroundStyle(Theme.text)
             if let company = connection.company, !company.isEmpty {
                 Text(company)

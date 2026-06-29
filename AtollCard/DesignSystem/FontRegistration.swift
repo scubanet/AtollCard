@@ -21,12 +21,14 @@ enum AtollFonts {
 extension Font {
     /// Manrope at the given size/weight, falling back to the system font
     /// if the bundled family is unavailable.
-    static func manrope(size: CGFloat, weight: Font.Weight = .regular) -> Font {
-        Font.custom(Theme.font, size: size).weight(weight)
+    static func manrope(size: CGFloat, weight: Font.Weight = .regular,
+                        relativeTo style: Font.TextStyle = .body) -> Font {
+        Font.custom(Theme.font, size: size, relativeTo: style).weight(weight)
     }
 
     /// Convenience alias matching the AtollCard naming.
-    static func atoll(size: CGFloat, weight: Font.Weight = .regular) -> Font {
-        manrope(size: size, weight: weight)
+    static func atoll(size: CGFloat, weight: Font.Weight = .regular,
+                      relativeTo style: Font.TextStyle = .body) -> Font {
+        manrope(size: size, weight: weight, relativeTo: style)
     }
 }
