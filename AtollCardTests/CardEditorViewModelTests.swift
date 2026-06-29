@@ -100,4 +100,31 @@ final class CardEditorViewModelTests: XCTestCase {
         let saved = try await store.fields(forCard: card.id)
         XCTAssertEqual(saved.map(\.value), ["j@x.com"], "save must preserve existing fields")
     }
+
+    @MainActor
+    func test_removeFieldDeletesIt() async {
+        let store = InMemoryCardStore()
+        let media = InMemoryMediaStore(publicBase: "https://x.supabase.co/storage/v1/object/public")
+        let vm = CardEditorViewModel(store: store, mediaStore: media, ownerId: UUID(), editing: nil)
+        vm.addField(type: .email, label: "Work", value: "a@x.com")
+        vm.addField(type: .phone, label: "Mobil", value: "123")
+        vm.removeFields(at: IndexSet(integer: 0))
+        XCTAssertEqual(vm.fields.map(\.value), ["123"])
+    }
+
+    @MainActor
+    func test_editedFieldValuePersistsOnSave() async throws {
+        let store = InMemoryCardStore()
+        let media = InMemoryMediaStore(publicBase: "https://x.supabase.co/storage/v1/object/public")
+        let owner = UUID()
+        let vm = CardEditorViewModel(store: store, mediaStore: media, ownerId: owner, editing: nil)
+        vm.displayName = "J"; vm.slug = "j"
+        vm.addField(type: .email, label: "Work", value: "old@x.com")
+        vm.fields[0].value = "new@x.com"           // direct binding edit
+        let ok = await vm.save()
+        XCTAssertTrue(ok)
+        let cards = try await store.cards(forOwner: owner)
+        let saved = try await store.fields(forCard: cards.first!.id)
+        XCTAssertEqual(saved.map(\.value), ["new@x.com"])
+    }
 }

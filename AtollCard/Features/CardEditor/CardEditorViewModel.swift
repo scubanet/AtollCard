@@ -57,6 +57,10 @@ final class CardEditorViewModel: ObservableObject {
                                 value: value, sortOrder: fields.count))
     }
 
+    func removeFields(at offsets: IndexSet) {
+        fields.remove(atOffsets: offsets)
+    }
+
     func save() async -> Bool {
         guard !displayName.trimmingCharacters(in: .whitespaces).isEmpty else {
             errorMessage = "Name darf nicht leer sein."

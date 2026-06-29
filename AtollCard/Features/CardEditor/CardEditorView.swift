@@ -75,14 +75,23 @@ struct CardEditorView: View {
                 .id(mediaRefresh)
 
                 Section("Felder") {
-                    ForEach(vm.fields) { field in
-                        VStack(alignment: .leading, spacing: 2) {
-                            Text(field.label.isEmpty ? field.type.rawValue : field.label)
-                                .font(.subheadline)
-                            Text(field.value)
+                    ForEach(vm.fields.indices, id: \.self) { index in
+                        VStack(alignment: .leading, spacing: 6) {
+                            Text(vm.fields[index].type.rawValue.capitalized)
                                 .font(.caption)
                                 .foregroundStyle(.secondary)
+                            LabeledTextField(title: "Bezeichnung", text: $vm.fields[index].label)
+                            LabeledTextField(title: "Wert", text: $vm.fields[index].value,
+                                             autocapitalize: false)
                         }
+                        .padding(.vertical, 2)
+                    }
+                    .onDelete { vm.removeFields(at: $0) }
+
+                    if vm.fields.isEmpty {
+                        Text("Noch keine Felder.")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
                     }
                 }
 
