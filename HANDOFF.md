@@ -70,6 +70,12 @@ Hinweis: Der Homebrew-`supabase`-Wrapper enthielt ein arm64-Binary mit ungültig
 - **Karte löschen:** `CardListViewModel.delete(_:)`; ManageCardsSheet swipe-to-delete + Bestätigung + Context-Menu (macOS), aktive-Karten-Selektion wird zurückgesetzt. ManageCardsSheet von ScrollView auf `List` umgestellt (für Swipe) — Vera: Glas-Spacing/Detents visuell prüfen.
 - **37 iOS-Tests grün**, iOS+macOS Build grün.
 
+### M2 Sub-6 — Link-Sicherheit (Scheme-Allowlist) (Stand 2026-06-29)
+- **Fix (stored XSS):** Web `fieldRow` rendert `url`/`social`-Feldwerte nur als Link bei http/https (via `safeURL`), sonst Plain-Text — verhinderte `javascript:`-Links auf dem öffentlichen Profil. `email`/`phone` feste `mailto:`/`tel:` (tel whitespace-frei).
+- iOS `EmailSignatureBuilder`: `safeHref` (http/https-only) für url-Felder + tel-Normalisierung.
+- card-media privater Bucket (Vex R-1) **bewusst verworfen** (YAGNI): öffentlicher Bucket ist für public Cards korrekt; Leak = unratbar zwei UUIDs.
+- **43 iOS-Tests + 33 Web-Tests grün**, alle Builds grün.
+
 ## Verträge (über alle Schichten identisch)
 - Profil-URL: `https://card.atoll-os.com/<slug>`.
 - RPC `get_public_card(p_slug)` → `public_card`(display_name,title,company,theme,accent_color,cover_url,logo_url,photo_url,fields jsonb).
