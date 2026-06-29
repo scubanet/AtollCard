@@ -15,7 +15,14 @@
 - Cover + Profilfoto via `PhotosPicker` → `ImageDownscaler` (ImageIO, 1600/512px) → `MediaStoring`/`SupabaseMediaStore` → `card-media`-Bucket; Anzeige auf `BusinessCardView` (AsyncImage Foto rund + Cover-Hintergrund, Initialen/Gradient als Fallback). **26 Tests grün, iOS+macOS Build grün.**
 - Backlog-Fixes: `CardEditorViewModel` erhält bestehende Media-URLs beim Edit (Regressionstest); `slug_available`-RPC (Migration 0009, anon revoked) + `SupabaseCardStore.slugIsAvailable` nutzt sie. 0009 auf Prod live + verifiziert.
 - **OFFEN:** interaktiver Foto-Smoke (Foto wählen→speichern→Karte zeigt Bild, Objekt im Prod-Bucket). `coverURL/photoURL` im VM sind `var` (nicht `@Published`) — „Entfernen" nutzt `.id()`-Refresh; bei Bedarf auf `@Published` heben. Lokales Supabase braucht `db reset` für Apple-Config + 0009 (nur Prod angewandt).
-- M2-Reste: Wallet/NFC/Widget/Watch, Signatur, Dark Mode/A11y, card-media privater Bucket.
+- M2-Reste: Wallet/NFC/Widget/Watch, Signatur, card-media privater Bucket.
+
+### M2 Sub-3 — Dark Mode + A11y-Härtung (Stand 2026-06-29)
+- Dynamische `Theme`-Tokens (`Color(light:dark:)` via `canImport(UIKit)`/`AppKit`) → System-Dark-Mode überall automatisch (8 Tokens → 84 Nutzungen). `text2` Kontrast-Fix (#8A8F98→#5E636B, WCAG AA).
+- Dynamic Type: `Font.atoll(...,relativeTo:.body)` (Default) → alle 54 Calls skalieren; 8 große Titel auf `.title2`.
+- Reduce Transparency: `GlassBackground` + FloatingTabBar + CardPill → solides `Theme.surface` statt Material. Reduce Motion: FloatingTabBar + Onboarding-Animationen gegatet.
+- **30 iOS-Tests grün** (inkl. `ThemeColorTests`), iOS+macOS Build grün. Dark- + Large-Type-Screenshots (SignInView) verifiziert.
+- OFFEN (Vera): visuelle Dynamic-Type-/Dark-QA der inneren Screens (Karte/Kontakte/Onboarding, sign-in nötig); Glas-Hairline-Border über solider Fläche prüfen.
 
 ### M2 Sub-2 — Kontakte-Empfang / Lead-Capture (Stand 2026-06-29)
 - Web-Profil: „Verbinden"-Formular (Name/E-Mail/Telefon/Firma/Nachricht + Consent-Checkbox) → anon `record_connection`-RPC. **29 Web-Tests grün.**
