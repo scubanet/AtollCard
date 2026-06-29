@@ -162,6 +162,7 @@ private struct CardPill: View {
     let card: Card
     let isSelected: Bool
     let action: () -> Void
+    @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
 
     var body: some View {
         Button(action: action) {
@@ -185,7 +186,7 @@ private struct CardPill: View {
                 if isSelected {
                     Capsule().fill(Theme.accentDefault)
                 } else {
-                    Capsule().fill(.ultraThinMaterial)
+                    Capsule().fill(reduceTransparency ? AnyShapeStyle(Theme.surface) : AnyShapeStyle(.ultraThinMaterial))
                         .overlay(Capsule().strokeBorder(Color.white.opacity(0.5), lineWidth: 1))
                 }
             }

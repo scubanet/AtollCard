@@ -6,6 +6,8 @@ import SwiftUI
 /// three icon+label items. The active item is tinted with the accent color.
 struct FloatingTabBar: View {
     @Binding var selection: ShellTab
+    @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     private let items: [(tab: ShellTab, icon: String, label: String)] = [
         (.card, "person.text.rectangle.fill", "Karte"),
@@ -17,7 +19,8 @@ struct FloatingTabBar: View {
         HStack(spacing: 0) {
             ForEach(items, id: \.tab) { item in
                 Button {
-                    withAnimation(.snappy(duration: 0.2)) { selection = item.tab }
+                    if reduceMotion { selection = item.tab }
+                    else { withAnimation(.snappy(duration: 0.2)) { selection = item.tab } }
                 } label: {
                     VStack(spacing: 4) {
                         Image(systemName: item.icon)
@@ -36,7 +39,7 @@ struct FloatingTabBar: View {
         }
         .padding(.vertical, 12)
         .padding(.horizontal, 12)
-        .background(.ultraThinMaterial)
+        .background(reduceTransparency ? AnyShapeStyle(Theme.surface) : AnyShapeStyle(.ultraThinMaterial))
         .clipShape(RoundedRectangle(cornerRadius: 28, style: .continuous))
         .overlay(
             RoundedRectangle(cornerRadius: 28, style: .continuous)

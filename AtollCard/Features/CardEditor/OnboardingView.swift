@@ -8,6 +8,7 @@ import PhotosUI
 /// The final step normalizes the slug from the name, then calls `vm.save()`.
 struct OnboardingView: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @StateObject private var vm: CardEditorViewModel
 
     @State private var step = 0
@@ -208,7 +209,7 @@ struct OnboardingView: View {
         HStack(spacing: 12) {
             if step > 0 {
                 Button {
-                    withAnimation { step -= 1 }
+                    if reduceMotion { step -= 1 } else { withAnimation { step -= 1 } }
                 } label: {
                     Text("Zurück")
                         .font(.atoll(size: 16, weight: .semibold))
@@ -257,7 +258,7 @@ struct OnboardingView: View {
 
     private func advance() {
         if step < 2 {
-            withAnimation { step += 1 }
+            if reduceMotion { step += 1 } else { withAnimation { step += 1 } }
             return
         }
         // Final step: build fields, normalize slug, save.
