@@ -15,7 +15,14 @@
 - Cover + Profilfoto via `PhotosPicker` → `ImageDownscaler` (ImageIO, 1600/512px) → `MediaStoring`/`SupabaseMediaStore` → `card-media`-Bucket; Anzeige auf `BusinessCardView` (AsyncImage Foto rund + Cover-Hintergrund, Initialen/Gradient als Fallback). **26 Tests grün, iOS+macOS Build grün.**
 - Backlog-Fixes: `CardEditorViewModel` erhält bestehende Media-URLs beim Edit (Regressionstest); `slug_available`-RPC (Migration 0009, anon revoked) + `SupabaseCardStore.slugIsAvailable` nutzt sie. 0009 auf Prod live + verifiziert.
 - **OFFEN:** interaktiver Foto-Smoke (Foto wählen→speichern→Karte zeigt Bild, Objekt im Prod-Bucket). `coverURL/photoURL` im VM sind `var` (nicht `@Published`) — „Entfernen" nutzt `.id()`-Refresh; bei Bedarf auf `@Published` heben. Lokales Supabase braucht `db reset` für Apple-Config + 0009 (nur Prod angewandt).
-- M2-Reste: Kontakte-Empfang, Wallet/NFC/Widget/Watch, Signatur, Dark Mode/A11y, card-media privater Bucket.
+- M2-Reste: Wallet/NFC/Widget/Watch, Signatur, Dark Mode/A11y, card-media privater Bucket.
+
+### M2 Sub-2 — Kontakte-Empfang / Lead-Capture (Stand 2026-06-29)
+- Web-Profil: „Verbinden"-Formular (Name/E-Mail/Telefon/Firma/Nachricht + Consent-Checkbox) → anon `record_connection`-RPC. **29 Web-Tests grün.**
+- Backend: `connections`-Tabelle + RLS (owner-only-read) + `record_connection` (Migration 0010, public Cards). **pgTAP 5/5 grün (lokal), Prod live + RLS verifiziert** (anon select `[]`, direct insert 401, RPC no-op 204). Lead-Pfad E2E lokal grün.
+- iOS: `Connection`-Model, `ConnectionStoring`-Naht + Supabase/InMemory, `ConnectionsViewModel`, Kontakte-Tab (Liste + Detail mit tap-to-call/mail) ersetzt Placeholder. **28 iOS-Tests grün, iOS+macOS Build grün.**
+- **OFFEN / Risiko:** iOS-Decode von `created_at` (6-stellige Microseconds, z. B. `…45.749719+00:00`) — supabase-swift-Decoder sollte passen; falls Decode-Fehler beim echten Lead-Abruf → `Connection.createdAt` auf String oder custom decoder umstellen. Interaktiver Check (echten Lead anlegen → erscheint im Kontakte-Tab).
+- Bewusst nicht: App-zu-App-Austausch, Geräte-Adressbuch-Export (CNContact), Push bei neuem Lead, Lead-Löschen/Tags.
 
 ---
 
