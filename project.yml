@@ -17,6 +17,9 @@ targets:
     dependencies:
       - package: Supabase
         product: Supabase
+      - target: AtollCardWidget
+        embed: true
+        platformFilter: iOS
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.weckherlin.atollcard
@@ -30,6 +33,24 @@ targets:
         CODE_SIGN_ENTITLEMENTS: AtollCard/AtollCard.entitlements
         CURRENT_PROJECT_VERSION: "1"
         MARKETING_VERSION: "1.0"
+        TARGETED_DEVICE_FAMILY: "1,2"
+  AtollCardWidget:
+    type: app-extension
+    supportedDestinations: [iOS]
+    sources:
+      - AtollCardWidget
+      - path: AtollCard/Shared/SharedCardSnapshot.swift
+      - path: AtollCard/Shared/AtollAppGroup.swift
+      - path: AtollCard/Shared/Color+Hex.swift
+      - path: AtollCard/Features/Share/QRCodeGenerator.swift
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.weckherlin.atollcard.widget
+        SWIFT_VERSION: "5.0"
+        INFOPLIST_FILE: AtollCardWidget/Info.plist
+        CODE_SIGN_ENTITLEMENTS: AtollCardWidget/AtollCardWidget.entitlements
+        DEVELOPMENT_TEAM: XK8V89P2QV
+        CODE_SIGN_STYLE: Automatic
         TARGETED_DEVICE_FAMILY: "1,2"
   AtollCardTests:
     type: bundle.unit-test
