@@ -166,6 +166,50 @@ export type Database = {
           },
         ]
       }
+      connections: {
+        Row: {
+          card_id: string
+          coarse_geo: string | null
+          company: string | null
+          created_at: string
+          email: string | null
+          id: string
+          name: string
+          note: string | null
+          phone: string | null
+        }
+        Insert: {
+          card_id: string
+          coarse_geo?: string | null
+          company?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          name: string
+          note?: string | null
+          phone?: string | null
+        }
+        Update: {
+          card_id?: string
+          coarse_geo?: string | null
+          company?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          name?: string
+          note?: string | null
+          phone?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "connections_card_id_fkey"
+            columns: ["card_id"]
+            isOneToOne: false
+            referencedRelation: "cards"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           created_at: string
@@ -207,6 +251,19 @@ export type Database = {
         }
         Returns: undefined
       }
+      record_connection: {
+        Args: {
+          p_coarse_geo?: string
+          p_company?: string
+          p_email?: string
+          p_name: string
+          p_note?: string
+          p_phone?: string
+          p_slug: string
+        }
+        Returns: undefined
+      }
+      slug_available: { Args: { p_slug: string }; Returns: boolean }
     }
     Enums: {
       card_event_type: "view" | "tap" | "save" | "share"
