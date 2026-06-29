@@ -1,4 +1,5 @@
 import Foundation
+import WidgetKit
 
 protocol Authenticating {
     func signIn(idToken: String, nonce: String) async throws -> UUID
@@ -28,5 +29,7 @@ final class AuthViewModel: ObservableObject {
     func signOut() async {
         try? await authenticator.signOut()
         userId = nil
+        AtollAppGroup.save(nil)
+        WidgetCenter.shared.reloadAllTimelines()
     }
 }

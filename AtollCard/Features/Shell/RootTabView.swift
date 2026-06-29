@@ -1,4 +1,5 @@
 import SwiftUI
+import WidgetKit
 
 /// Signed-in root. iOS: custom floating glass 3-tab bar over the content.
 /// macOS: standard `TabView` (a floating bar is impractical there).
@@ -32,15 +33,29 @@ struct RootTabView: View {
         #if os(iOS)
         iosShell
             .task { await loadAndSelect() }
+            .onChange(of: selectedCardId) { _, _ in publishActiveCard() }
+            .onChange(of: vm.cards) { _, _ in publishActiveCard() }
         #else
         macShell
             .task { await loadAndSelect() }
+            .onChange(of: selectedCardId) { _, _ in publishActiveCard() }
+            .onChange(of: vm.cards) { _, _ in publishActiveCard() }
         #endif
     }
 
     private func loadAndSelect() async {
         await vm.load()
         if selectedCardId == nil { selectedCardId = vm.cards.first?.id }
+        publishActiveCard()
+    }
+
+    private func publishActiveCard() {
+        if let c = selectedCard {
+            AtollAppGroup.save(SharedCardSnapshot(slug: c.slug, displayName: c.displayName, accentColor: c.accentColor))
+        } else {
+            AtollAppGroup.save(nil)
+        }
+        WidgetCenter.shared.reloadAllTimelines()
     }
 
     // MARK: - iOS custom floating bar
