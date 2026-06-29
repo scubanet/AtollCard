@@ -53,6 +53,14 @@ struct Card: Codable, Identifiable, Equatable {
 extension JSONDecoder {
     static let atoll: JSONDecoder = {
         let d = JSONDecoder()
+        let withFrac = ISO8601DateFormatter(); withFrac.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+        let plain = ISO8601DateFormatter(); plain.formatOptions = [.withInternetDateTime]
+        d.dateDecodingStrategy = .custom { decoder in
+            let s = try decoder.singleValueContainer().decode(String.self)
+            if let date = withFrac.date(from: s) ?? plain.date(from: s) { return date }
+            throw DecodingError.dataCorrupted(.init(codingPath: decoder.codingPath,
+                debugDescription: "Unrecognized date: \(s)"))
+        }
         return d
     }()
 }
