@@ -43,6 +43,22 @@ export function renderCard(card: PublicCard): string {
     <h1 class="name">${name}</h1>${title}${company}
     <ul class="fields">${fields}</ul>
     <button id="save-contact" type="button">Kontakt speichern</button>
+    <button id="connect-toggle" type="button" aria-expanded="false" aria-controls="connect-form">Verbinden</button>
+    <form id="connect-form" class="connect" hidden aria-label="Verbinden">
+      <label class="connect-label" for="c-name">Name</label>
+      <input id="c-name" name="name" type="text" placeholder="Name" autocomplete="name" required />
+      <label class="connect-label" for="c-email">E-Mail</label>
+      <input id="c-email" name="email" type="email" placeholder="E-Mail" autocomplete="email" />
+      <label class="connect-label" for="c-phone">Telefon</label>
+      <input id="c-phone" name="phone" type="tel" placeholder="Telefon" autocomplete="tel" />
+      <label class="connect-label" for="c-company">Firma</label>
+      <input id="c-company" name="company" type="text" placeholder="Firma" autocomplete="organization" />
+      <label class="connect-label" for="c-note">Nachricht</label>
+      <textarea id="c-note" name="note" placeholder="Nachricht"></textarea>
+      <label class="connect-consent"><input id="c-consent" type="checkbox" /> <span>Ich willige ein, dass meine Daten an den Karteninhaber übermittelt werden.</span></label>
+      <button id="c-submit" type="submit">Senden</button>
+    </form>
+    <p id="c-status" class="connect-status" role="status" aria-live="polite"></p>
   </section>`
 }
 

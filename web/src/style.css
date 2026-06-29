@@ -23,6 +23,24 @@ body{margin:0;background:var(--app-bg);color:var(--text);
 .field .value{color:var(--text);text-decoration:none;font-weight:600}
 #save-contact{margin:18px 20px;padding:15px 18px;width:calc(100% - 40px);border:none;
   border-radius:16px;background:var(--accent);color:#fff;font-weight:800;font-size:16px;cursor:pointer}
+#connect-toggle{margin:0 20px 18px;padding:15px 18px;width:calc(100% - 40px);
+  border:1.5px solid var(--accent);border-radius:16px;background:transparent;color:var(--accent);
+  font-weight:800;font-size:16px;cursor:pointer}
+.connect{margin:0 20px 18px;padding:16px;display:flex;flex-direction:column;gap:8px;
+  background:rgba(255,255,255,.6);backdrop-filter:blur(18px) saturate(180%);
+  border:1px solid var(--sep);border-radius:16px}
+.connect-label{color:var(--text-2);text-transform:uppercase;font-size:12px;font-weight:700;letter-spacing:.4px}
+.connect input,.connect textarea{width:100%;padding:12px 14px;border:1px solid var(--sep);
+  border-radius:12px;background:var(--surface);color:var(--text);font:inherit;font-size:16px}
+.connect textarea{min-height:84px;resize:vertical}
+.connect input:focus-visible,.connect textarea:focus-visible,
+#connect-toggle:focus-visible,#c-submit:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.connect-consent{display:flex;gap:10px;align-items:flex-start;font-size:14px;color:var(--text-2);line-height:1.4}
+.connect-consent input{width:auto;flex:0 0 auto;margin-top:2px}
+#c-submit{margin-top:4px;padding:14px 18px;border:none;border-radius:14px;
+  background:var(--accent);color:#fff;font-weight:800;font-size:16px;cursor:pointer}
+.connect-status{margin:0 20px 18px;color:var(--text-2);font-size:14px;font-weight:600}
+.connect-status:empty{display:none}
 .not-found{padding:80px 24px;text-align:center}
 .consent{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);
   display:flex;gap:12px;align-items:center;background:rgba(255,255,255,.7);
