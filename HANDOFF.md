@@ -15,7 +15,13 @@
 - Cover + Profilfoto via `PhotosPicker` → `ImageDownscaler` (ImageIO, 1600/512px) → `MediaStoring`/`SupabaseMediaStore` → `card-media`-Bucket; Anzeige auf `BusinessCardView` (AsyncImage Foto rund + Cover-Hintergrund, Initialen/Gradient als Fallback). **26 Tests grün, iOS+macOS Build grün.**
 - Backlog-Fixes: `CardEditorViewModel` erhält bestehende Media-URLs beim Edit (Regressionstest); `slug_available`-RPC (Migration 0009, anon revoked) + `SupabaseCardStore.slugIsAvailable` nutzt sie. 0009 auf Prod live + verifiziert.
 - **OFFEN:** interaktiver Foto-Smoke (Foto wählen→speichern→Karte zeigt Bild, Objekt im Prod-Bucket). `coverURL/photoURL` im VM sind `var` (nicht `@Published`) — „Entfernen" nutzt `.id()`-Refresh; bei Bedarf auf `@Published` heben. Lokales Supabase braucht `db reset` für Apple-Config + 0009 (nur Prod angewandt).
-- M2-Reste: Wallet/NFC/Widget/Watch, Signatur, card-media privater Bucket.
+- M2-Reste: Wallet/NFC/Watch, Signatur, card-media privater Bucket.
+
+### M2 Sub-4 — Home-Screen Widget (Stand 2026-06-29)
+- WidgetKit-Extension `AtollCardWidget` (iOS-only): **small** = QR-Hero, **medium** = Name + QR der aktiven Karte. App schreibt `SharedCardSnapshot` (slug/name/accent) in App Group `group.com.weckherlin.atollcard`; Widget liest sie; `WidgetCenter.reloadAllTimelines()` bei Kartenwechsel/Sign-out.
+- Shared sources (App + Widget): `SharedCardSnapshot`, `AtollAppGroup`, `QRCodeGenerator`, `Color+Hex` (aus Theme extrahiert). **33 iOS-Tests grün**, iOS app+widget + macOS Build grün, `.appex` in `PlugIns/` eingebettet.
+- xcodegen-Eigenheiten: Embed via `embed: true` + `platformFilter: iOS` (sonst force-embed in macOS-Build); explizite `AtollCardWidget/Info.plist` mit `NSExtension`-Dict (GENERATE_INFOPLIST erzeugt das nicht).
+- **OFFEN:** App Group `group.com.weckherlin.atollcard` im Apple Developer Portal registrieren + beiden App-IDs zuweisen (analog SIWA) für Gerät/TestFlight; Sim läuft ohne. Widget visuell auf Home-Screen = interaktiv/Vera.
 
 ### M2 Sub-3 — Dark Mode + A11y-Härtung (Stand 2026-06-29)
 - Dynamische `Theme`-Tokens (`Color(light:dark:)` via `canImport(UIKit)`/`AppKit`) → System-Dark-Mode überall automatisch (8 Tokens → 84 Nutzungen). `text2` Kontrast-Fix (#8A8F98→#5E636B, WCAG AA).
