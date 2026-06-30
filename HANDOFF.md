@@ -76,6 +76,12 @@ Hinweis: Der Homebrew-`supabase`-Wrapper enthielt ein arm64-Binary mit ungültig
 - card-media privater Bucket (Vex R-1) **bewusst verworfen** (YAGNI): öffentlicher Bucket ist für public Cards korrekt; Leak = unratbar zwei UUIDs.
 - **43 iOS-Tests + 33 Web-Tests grün**, alle Builds grün.
 
+### M2 Sub-7 — Wallet-Pass (Stand 2026-06-30)
+- Cert-Pipeline: Pass-Type-ID `pass.swiss.atoll.card.persona`, Pass-Cert/Key (.p12→PEM) + WWDR-G4 → als Supabase-Secrets (`PASS_TYPE_ID`,`APPLE_TEAM_ID`,`PASS_CERT_PEM`,`PASS_KEY_PEM`,`WWDR_PEM`). Pipeline-Skripte/PEMs liegen im Session-Scratchpad (nicht im Repo).
+- Edge Function `generate-pass` (Deno, `supabase/functions/generate-pass/`): RLS via User-JWT lädt Karte, baut generic `pass.json` (Name/Titel/Firma + QR aufs Profil), signiert PKCS#7-detached (node-forge sha256 + WWDR), fflate-ZIP → `.pkpass`. **Deployed (v1, verify_jwt true).** Unauth→401; Signatur lokal via `openssl cms -verify` bestätigt (gültig).
+- iOS: `WalletPassProviding`/`SupabaseWalletService` (`functions.invoke(decode:{data,_ in data})` für Roh-Bytes) + `WalletAddViewModel` + `AddPassView` (PKAddPassesViewController, iOS-only) + ShareSheet-Zeile „Zu Wallet hinzufügen". **45 iOS-Tests grün**, iOS+macOS Build grün, auf iPad installiert.
+- **OFFEN:** End-Test add-to-Wallet auf Gerät (Nutzer). Bei Ablehnung: Signatur iterieren (sha1↔sha256/WWDR-Reihenfolge) + redeploy. Pass-Updates/Push, Logo-Bild = später.
+
 ## Verträge (über alle Schichten identisch)
 - Profil-URL: `https://card.atoll-os.com/<slug>`.
 - RPC `get_public_card(p_slug)` → `public_card`(display_name,title,company,theme,accent_color,cover_url,logo_url,photo_url,fields jsonb).
