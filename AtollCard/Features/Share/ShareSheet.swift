@@ -1,13 +1,22 @@
 import CoreImage
 import SwiftUI
+#if os(iOS)
+import PassKit
+#endif
 
 /// Share sheet matching `share.png`: large QR code, the profile URL, a native
 /// share button, and Wallet/NFC/Widget option rows (placeholders for M2).
 struct ShareSheet: View {
     let card: Card
     let store: CardStoring
+    var walletService: WalletPassProviding = SupabaseWalletService()
     @Environment(\.dismiss) private var dismiss
     @State private var showComingSoon = false
+    #if os(iOS)
+    @State private var walletPass: Data?
+    @State private var walletError: String?
+    @State private var isLoadingWallet = false
+    #endif
 
     private var url: URL { QRCodeGenerator.profileURL(forSlug: card.slug) }
 
@@ -52,7 +61,15 @@ struct ShareSheet: View {
                         }
                         .buttonStyle(.plain)
 
-                        OptionRow(icon: "wallet.pass", title: "Zu Wallet hinzufügen") { showComingSoon = true }
+                        #if os(iOS)
+                        if PKPassLibrary.isPassLibraryAvailable() {
+                            ActionRow(
+                                icon: "wallet.pass",
+                                title: "Zu Wallet hinzufügen",
+                                isLoading: isLoadingWallet
+                            ) { Task { await loadWallet() } }
+                        }
+                        #endif
                         OptionRow(icon: "wave.3.right", title: "Per NFC teilen") { showComingSoon = true }
                         OptionRow(icon: "square.text.square", title: "Als Widget anzeigen") { showComingSoon = true }
                     }
@@ -76,6 +93,28 @@ struct ShareSheet: View {
             } message: {
                 Text("Diese Funktion kommt in einem späteren Update.")
             }
+            #if os(iOS)
+            .sheet(isPresented: Binding(
+                get: { walletPass != nil },
+                set: { if !$0 { walletPass = nil } }
+            )) {
+                if let data = walletPass {
+                    AddPassView(passData: data) { walletPass = nil }
+                        .ignoresSafeArea()
+                }
+            }
+            .alert(
+                "Wallet-Pass fehlgeschlagen",
+                isPresented: Binding(
+                    get: { walletError != nil },
+                    set: { if !$0 { walletError = nil } }
+                )
+            ) {
+                Button("OK", role: .cancel) {}
+            } message: {
+                Text(walletError ?? "")
+            }
+            #endif
         }
         #if os(iOS)
         .presentationDetents([.large])
@@ -89,7 +128,55 @@ struct ShareSheet: View {
         }
         return Image(systemName: "qrcode")
     }
+
+    #if os(iOS)
+    private func loadWallet() async {
+        guard !isLoadingWallet else { return }
+        isLoadingWallet = true
+        defer { isLoadingWallet = false }
+        do { walletPass = try await walletService.passData(forCardId: card.id) }
+        catch { walletError = error.localizedDescription }
+    }
+    #endif
 }
+
+#if os(iOS)
+private struct ActionRow: View {
+    let icon: String
+    let title: String
+    let isLoading: Bool
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            HStack(spacing: 14) {
+                Image(systemName: icon)
+                    .font(.system(size: 16, weight: .medium))
+                    .foregroundStyle(Theme.accentDefault)
+                    .frame(width: 30)
+                Text(title)
+                    .font(.atoll(size: 16, weight: .medium))
+                    .foregroundStyle(Theme.text)
+                Spacer()
+                if isLoading {
+                    ProgressView()
+                } else {
+                    Image(systemName: "chevron.right")
+                        .font(.system(size: 13, weight: .semibold))
+                        .foregroundStyle(Theme.text2)
+                }
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 14)
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .disabled(isLoading)
+        .accessibilityLabel(title)
+        .accessibilityAddTraits(.isButton)
+    }
+}
+#endif
 
 private struct NavRowLabel: View {
     let icon: String
