@@ -82,6 +82,11 @@ Hinweis: Der Homebrew-`supabase`-Wrapper enthielt ein arm64-Binary mit ungültig
 - iOS: `WalletPassProviding`/`SupabaseWalletService` (`functions.invoke(decode:{data,_ in data})` für Roh-Bytes) + `WalletAddViewModel` + `AddPassView` (PKAddPassesViewController, iOS-only) + ShareSheet-Zeile „Zu Wallet hinzufügen". **45 iOS-Tests grün**, iOS+macOS Build grün, auf iPad installiert.
 - **OFFEN:** End-Test add-to-Wallet auf Gerät (Nutzer). Bei Ablehnung: Signatur iterieren (sha1↔sha256/WWDR-Reihenfolge) + redeploy. Pass-Updates/Push, Logo-Bild = später.
 
+### Infra + Konto-Löschung (Stand 2026-07-01)
+- **GitHub:** privates Repo `scubanet/AtollCard` (Source of Truth, main gepusht). Web-Deploy: öffentliches Repo `scubanet/atollcard-web` (nur gebautes dist + 404-SPA-Fallback + CNAME) → **GitHub Pages**, Custom Domain `card.atoll-os.com` (CNAME bei Infomaniak → scubanet.github.io). HTTP live; HTTPS-Enforce nach Cert-Ausstellung. **Web-Redeploy:** `cd web && VITE_SUPabase…-Envs npm run build` → dist ins atollcard-web-Repo pushen (noch manuell; CI später).
+- **Konto-Löschung (App-Store 5.1.1(v)):** Edge Function `delete-account` deployed (verify_jwt; JWT-Identität, Storage-Cleanup `card-media/<uid>/**`, `auth.admin.deleteUser` → FK-Cascade). iOS: `Authenticating.deleteAccount()` + zweistufiger Dialog in Settings. **49 Tests grün.** Offen: interaktiver Löschtest.
+- Settings „Teilen"-Zeilen korrigiert (Wallet/Widget = echte Hinweise statt „Bald verfügbar"; NFC bleibt Platzhalter).
+
 ## Verträge (über alle Schichten identisch)
 - Profil-URL: `https://card.atoll-os.com/<slug>`.
 - RPC `get_public_card(p_slug)` → `public_card`(display_name,title,company,theme,accent_color,cover_url,logo_url,photo_url,fields jsonb).
