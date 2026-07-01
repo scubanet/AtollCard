@@ -5,6 +5,7 @@ import SwiftUI
 struct SettingsView: View {
     @ObservedObject var authVM: AuthViewModel
     @State private var showComingSoon = false
+    @State private var infoMessage: String?
     @State private var showDeleteStep1 = false
     @State private var showDeleteStep2 = false
     @State private var isDeleting = false
@@ -16,11 +17,15 @@ struct SettingsView: View {
 
                 section(title: "Teilen") {
                     SettingsRow(icon: "wallet.pass", title: "Zu Wallet hinzufügen",
-                                subtitle: "Bald verfügbar") { showComingSoon = true }
+                                subtitle: "Im Teilen-Menü") {
+                        infoMessage = "Öffne deine Karte, tippe auf das QR-Symbol und wähle „Zu Wallet hinzufügen“."
+                    }
                     SettingsRow(icon: "wave.3.right", title: "NFC-Tag schreiben",
                                 subtitle: "Bald verfügbar") { showComingSoon = true }
                     SettingsRow(icon: "square.text.square", title: "Widget einrichten",
-                                subtitle: "Bald verfügbar") { showComingSoon = true }
+                                subtitle: "Home-Screen") {
+                        infoMessage = "Halte den Home-Screen gedrückt, tippe auf „+“ und wähle das AtollCard-Widget."
+                    }
                 }
 
                 section(title: "Darstellung") {
@@ -60,6 +65,12 @@ struct SettingsView: View {
             Button("OK", role: .cancel) {}
         } message: {
             Text("Diese Funktion kommt in einem späteren Update.")
+        }
+        .alert("So geht’s", isPresented: Binding(get: { infoMessage != nil },
+                                                 set: { if !$0 { infoMessage = nil } })) {
+            Button("OK", role: .cancel) {}
+        } message: {
+            Text(infoMessage ?? "")
         }
         .confirmationDialog("Konto löschen?", isPresented: $showDeleteStep1, titleVisibility: .visible) {
             Button("Weiter", role: .destructive) { showDeleteStep2 = true }
