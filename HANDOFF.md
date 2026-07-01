@@ -83,7 +83,7 @@ Hinweis: Der Homebrew-`supabase`-Wrapper enthielt ein arm64-Binary mit ungültig
 - **OFFEN:** End-Test add-to-Wallet auf Gerät (Nutzer). Bei Ablehnung: Signatur iterieren (sha1↔sha256/WWDR-Reihenfolge) + redeploy. Pass-Updates/Push, Logo-Bild = später.
 
 ### Infra + Konto-Löschung (Stand 2026-07-01)
-- **GitHub:** privates Repo `scubanet/AtollCard` (Source of Truth, main gepusht). Web-Deploy: öffentliches Repo `scubanet/atollcard-web` (nur gebautes dist + 404-SPA-Fallback + CNAME) → **GitHub Pages**, Custom Domain `card.atoll-os.com` (CNAME bei Infomaniak → scubanet.github.io). HTTP live; HTTPS-Enforce nach Cert-Ausstellung. **Web-Redeploy:** `cd web && VITE_SUPabase…-Envs npm run build` → dist ins atollcard-web-Repo pushen (noch manuell; CI später).
+- **GitHub:** privates Repo `scubanet/AtollCard` (Source of Truth, main gepusht). Web-Deploy: öffentliches Repo `scubanet/atollcard-web` (nur gebautes dist + 404-SPA-Fallback + CNAME) → **GitHub Pages**, Custom Domain `card.atoll-os.com` (CNAME bei Infomaniak → scubanet.github.io). HTTP live; HTTPS-Enforce nach Cert-Ausstellung (Cert `approved`, Poll erzwingt automatisch). **Web-Redeploy: automatisch** — `.github/workflows/deploy-web.yml` baut+testet `web/` bei jedem Push auf `web/**` und pusht dist nach `atollcard-web` (Deploy-Key `WEB_DEPLOY_KEY`-Secret; erster Run grün).
 - **Konto-Löschung (App-Store 5.1.1(v)):** Edge Function `delete-account` deployed (verify_jwt; JWT-Identität, Storage-Cleanup `card-media/<uid>/**`, `auth.admin.deleteUser` → FK-Cascade). iOS: `Authenticating.deleteAccount()` + zweistufiger Dialog in Settings. **49 Tests grün.** Offen: interaktiver Löschtest.
 - Settings „Teilen"-Zeilen korrigiert (Wallet/Widget = echte Hinweise statt „Bald verfügbar"; NFC bleibt Platzhalter).
 
