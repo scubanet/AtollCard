@@ -14,13 +14,19 @@ struct AtollCardApp: App {
 
     var body: some Scene {
         WindowGroup {
-            if let userId = authVM.userId {
-                RootTabView(store: stores.cardStore, mediaStore: stores.mediaStore,
-                            connectionStore: stores.connectionStore,
-                            ownerId: userId, authVM: authVM)
-            } else {
-                SignInView(authVM: authVM)
+            Group {
+                if authVM.isRestoring {
+                    ProgressView().frame(maxWidth: .infinity, maxHeight: .infinity)
+                        .background(Theme.appBG.ignoresSafeArea())
+                } else if let userId = authVM.userId {
+                    RootTabView(store: stores.cardStore, mediaStore: stores.mediaStore,
+                                connectionStore: stores.connectionStore,
+                                ownerId: userId, authVM: authVM)
+                } else {
+                    SignInView(authVM: authVM)
+                }
             }
+            .task { await authVM.restore() }
         }
     }
 }

@@ -11,4 +11,8 @@ struct SupabaseAuthenticator: Authenticating {
         return session.user.id
     }
     func signOut() async throws { try await client.auth.signOut() }
+
+    func currentUserId() async -> UUID? {
+        (try? await client.auth.session)?.user.id
+    }
 }
