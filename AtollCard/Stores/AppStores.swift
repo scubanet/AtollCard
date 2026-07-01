@@ -26,5 +26,6 @@ struct PreviewAuthenticator: Authenticating {
     var userId: UUID = UUID()
     func signIn(idToken: String, nonce: String) async throws -> UUID { userId }
     func signOut() async throws {}
+    func deleteAccount() async throws {}
     func currentUserId() async -> UUID? { userId }
 }

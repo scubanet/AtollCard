@@ -5,6 +5,9 @@ import SwiftUI
 struct SettingsView: View {
     @ObservedObject var authVM: AuthViewModel
     @State private var showComingSoon = false
+    @State private var showDeleteStep1 = false
+    @State private var showDeleteStep2 = false
+    @State private var isDeleting = false
 
     var body: some View {
         ScrollView {
@@ -32,6 +35,20 @@ struct SettingsView: View {
                                 title: "Abmelden", subtitle: nil, isDestructive: true) {
                         Task { await authVM.signOut() }
                     }
+                    SettingsRow(icon: "trash", title: "Konto löschen", subtitle: nil,
+                                isDestructive: true, isLoading: isDeleting) {
+                        showDeleteStep1 = true
+                    }
+                    .disabled(isDeleting)
+                    if let error = authVM.errorMessage {
+                        Text(error)
+                            .font(.atoll(size: 13))
+                            .foregroundStyle(Color.red)
+                            .padding(.horizontal, 16)
+                            .padding(.bottom, 12)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .accessibilityLabel("Fehler: \(error)")
+                    }
                 }
             }
             .padding(.horizontal, 20)
@@ -44,6 +61,17 @@ struct SettingsView: View {
         } message: {
             Text("Diese Funktion kommt in einem späteren Update.")
         }
+        .confirmationDialog("Konto löschen?", isPresented: $showDeleteStep1, titleVisibility: .visible) {
+            Button("Weiter", role: .destructive) { showDeleteStep2 = true }
+            Button("Abbrechen", role: .cancel) {}
+        } message: { Text("Dein Konto und alle Daten werden gelöscht.") }
+        .alert("Wirklich löschen?", isPresented: $showDeleteStep2) {
+            Button("Endgültig löschen", role: .destructive) {
+                isDeleting = true
+                Task { await authVM.deleteAccount(); isDeleting = false }
+            }
+            Button("Abbrechen", role: .cancel) {}
+        } message: { Text("Alle Karten, Kontakte und Bilder werden unwiderruflich gelöscht.") }
     }
 
     private var header: some View {
@@ -80,6 +108,7 @@ private struct SettingsRow: View {
     let title: String
     var subtitle: String?
     var isDestructive: Bool = false
+    var isLoading: Bool = false
     let action: () -> Void
 
     var body: some View {
@@ -93,6 +122,11 @@ private struct SettingsRow: View {
                     .font(.atoll(size: 16, weight: .medium))
                     .foregroundStyle(isDestructive ? Color.red : Theme.text)
                 Spacer()
+                if isLoading {
+                    ProgressView()
+                        .controlSize(.small)
+                        .accessibilityLabel("Wird gelöscht")
+                }
                 if let subtitle {
                     Text(subtitle)
                         .font(.atoll(size: 14))

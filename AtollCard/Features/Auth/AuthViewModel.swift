@@ -4,6 +4,7 @@ import WidgetKit
 protocol Authenticating {
     func signIn(idToken: String, nonce: String) async throws -> UUID
     func signOut() async throws
+    func deleteAccount() async throws
     func currentUserId() async -> UUID?
 }
 
@@ -38,5 +39,17 @@ final class AuthViewModel: ObservableObject {
         userId = nil
         AtollAppGroup.save(nil)
         WidgetCenter.shared.reloadAllTimelines()
+    }
+
+    func deleteAccount() async {
+        do {
+            try await authenticator.deleteAccount()
+            userId = nil
+            errorMessage = nil
+            AtollAppGroup.save(nil)
+            WidgetCenter.shared.reloadAllTimelines()
+        } catch {
+            errorMessage = error.localizedDescription
+        }
     }
 }

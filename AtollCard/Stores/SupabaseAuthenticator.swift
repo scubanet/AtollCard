@@ -12,6 +12,11 @@ struct SupabaseAuthenticator: Authenticating {
     }
     func signOut() async throws { try await client.auth.signOut() }
 
+    func deleteAccount() async throws {
+        try await client.functions.invoke("delete-account")
+        try? await client.auth.signOut()
+    }
+
     func currentUserId() async -> UUID? {
         (try? await client.auth.session)?.user.id
     }
