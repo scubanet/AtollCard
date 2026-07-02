@@ -87,6 +87,12 @@ Hinweis: Der Homebrew-`supabase`-Wrapper enthielt ein arm64-Binary mit ungültig
 - **Konto-Löschung (App-Store 5.1.1(v)):** Edge Function `delete-account` deployed (verify_jwt; JWT-Identität, Storage-Cleanup `card-media/<uid>/**`, `auth.admin.deleteUser` → FK-Cascade). iOS: `Authenticating.deleteAccount()` + zweistufiger Dialog in Settings. **49 Tests grün.** Offen: interaktiver Löschtest.
 - Settings „Teilen"-Zeilen korrigiert (Wallet/Widget = echte Hinweise statt „Bald verfügbar"; NFC bleibt Platzhalter).
 
+### M2 Sub-8 — Lead-Namens-Split, Adressbuch-Export, Löschen (Stand 2026-07-02)
+- **Backend (0011, lokal+Prod):** `connections.first_name/last_name`; DELETE-Policy (owner-via-card); `record_connection` v2 (9 Args, `p_first_name`/`p_last_name`; drop der 7-Arg-Signatur — named-args halten altes Web kompatibel). pgTAP 0005 = 7 Asserts grün.
+- **Web:** Formular erfasst Vorname + Name (beide Pflicht, autocomplete given/family-name) → live deployt. **Pages-Falle gelöst:** legacy Build = Jekyll → `.nojekyll` nötig (im dist-Repo + CI-Workflow persistiert), sonst „Page build failed".
+- **iOS:** `Connection.firstName/lastName` + `displayName`; `ConnectionStoring.delete` + swipe-to-delete mit Bestätigung (ContactsView auf `List` umgestellt); `ContactExporting`/`ContactMapper` (pure, getestet) + `SystemContactExporter` (CNContactStore) + „In Kontakte sichern"-Button in Detail; `NSContactsUsageDescription`. **53 iOS-Tests grün**, iOS+macOS Build grün, iPad installiert.
+- OFFEN (interaktiv): Formular live ausfüllen → Lead → „In Kontakte sichern" (auf Gerät: note-Feld beobachten) → swipe-löschen. macOS-Sandbox-Hinweis: falls Sandbox später aktiviert → `com.apple.security.personal-information.addressbook`.
+
 ## Verträge (über alle Schichten identisch)
 - Profil-URL: `https://card.atoll-os.com/<slug>`.
 - RPC `get_public_card(p_slug)` → `public_card`(display_name,title,company,theme,accent_color,cover_url,logo_url,photo_url,fields jsonb).
