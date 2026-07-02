@@ -1,5 +1,5 @@
 begin;
-select plan(4);
+select plan(7);
 
 insert into auth.users (id, email) values
   ('aaaaaaaa-0000-0000-0000-000000000001', 'owner@example.com'),
@@ -24,6 +24,22 @@ select is((select count(*)::int from public.connections), 1, 'owner sees only th
 
 select set_config('request.jwt.claims', '{"sub":"bbbbbbbb-0000-0000-0000-000000000002","role":"authenticated"}', true);
 select is((select count(*)::int from public.connections), 0, 'foreign user sees no leads (RLS)');
+
+-- split-name recording
+set local role anon;
+select lives_ok(
+  $$select record_connection('jane-doe', p_first_name => 'Max', p_last_name => 'Muster')$$,
+  'records with split names');
+
+set local role authenticated;
+select set_config('request.jwt.claims', '{"sub":"aaaaaaaa-0000-0000-0000-000000000001","role":"authenticated"}', true);
+select is(
+  (select count(*)::int from public.connections where first_name='Max' and last_name='Muster' and name='Max Muster'),
+  1, 'split names stored and combined into name');
+
+-- owner can delete
+delete from public.connections;
+select is((select count(*)::int from public.connections), 0, 'owner deleted own leads');
 
 select * from finish();
 rollback;
