@@ -11,4 +11,8 @@ final class SupabaseConnectionStore: ConnectionStoring {
             .execute()
             .value
     }
+    func delete(_ connectionId: UUID) async throws {
+        try await client.from("connections").delete()
+            .eq("id", value: connectionId.uuidString).execute()
+    }
 }

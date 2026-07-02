@@ -3,6 +3,7 @@ import SwiftUI
 /// Kontakte tab — lists leads captured via the user's shared profile.
 struct ContactsView: View {
     @StateObject private var vm: ConnectionsViewModel
+    @State private var connectionToDelete: Connection?
 
     init(store: ConnectionStoring, ownerId: UUID) {
         _vm = StateObject(wrappedValue: ConnectionsViewModel(store: store, ownerId: ownerId))
@@ -10,8 +11,8 @@ struct ContactsView: View {
 
     var body: some View {
         NavigationStack {
-            ScrollView {
-                VStack(spacing: 18) {
+            List {
+                Group {
                     header
 
                     if let message = vm.errorMessage {
@@ -24,17 +25,35 @@ struct ContactsView: View {
                     if vm.connections.isEmpty {
                         emptyState
                     } else {
-                        connectionsList
+                        connectionRows
                     }
                 }
-                .padding(.horizontal, 20)
-                .padding(.top, 8)
-                .padding(.bottom, 120)
+                .listRowBackground(Color.clear)
+                .listRowSeparator(.hidden)
+                .listRowInsets(EdgeInsets(top: 6, leading: 20, bottom: 6, trailing: 20))
             }
+            .listStyle(.plain)
+            .scrollContentBackground(.hidden)
             .background(Theme.appBG.ignoresSafeArea())
             #if os(iOS)
             .toolbar(.hidden, for: .navigationBar)
             #endif
+            .confirmationDialog(
+                "Kontakt löschen?",
+                isPresented: Binding(
+                    get: { connectionToDelete != nil },
+                    set: { if !$0 { connectionToDelete = nil } }
+                ),
+                titleVisibility: .visible,
+                presenting: connectionToDelete
+            ) { connection in
+                Button("Löschen", role: .destructive) {
+                    Task { await vm.delete(connection.id) }
+                }
+                Button("Abbrechen", role: .cancel) {}
+            } message: { connection in
+                Text("„\(connection.displayName)“ wird dauerhaft entfernt.")
+            }
         }
         .task { await vm.load() }
     }
@@ -49,6 +68,7 @@ struct ContactsView: View {
                 .foregroundStyle(Theme.text)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(.top, 8)
     }
 
     private var emptyState: some View {
@@ -71,24 +91,28 @@ struct ContactsView: View {
         .padding(.top, 24)
     }
 
-    private var connectionsList: some View {
-        VStack(spacing: 12) {
-            ForEach(vm.connections) { connection in
-                NavigationLink {
-                    ConnectionDetailView(connection: connection)
+    private var connectionRows: some View {
+        ForEach(vm.connections) { connection in
+            NavigationLink {
+                ConnectionDetailView(connection: connection)
+            } label: {
+                row(for: connection)
+            }
+            .buttonStyle(.plain)
+            .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                Button(role: .destructive) {
+                    connectionToDelete = connection
                 } label: {
-                    row(for: connection)
+                    Label("Löschen", systemImage: "trash")
                 }
-                .buttonStyle(.plain)
             }
         }
-        .padding(.top, 4)
     }
 
     private func row(for connection: Connection) -> some View {
         HStack(spacing: 12) {
             VStack(alignment: .leading, spacing: 3) {
-                Text(connection.name)
+                Text(connection.displayName)
                     .font(.atoll(size: 17, weight: .bold))
                     .foregroundStyle(Theme.text)
                 if let company = connection.company, !company.isEmpty {
@@ -101,11 +125,6 @@ struct ContactsView: View {
                     .foregroundStyle(Theme.text2)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
-
-            Image(systemName: "chevron.right")
-                .font(.system(size: 13, weight: .semibold))
-                .foregroundStyle(Theme.text2)
-                .accessibilityHidden(true)
         }
         .padding(.vertical, 14)
         .padding(.horizontal, 16)
@@ -117,10 +136,12 @@ struct ContactsView: View {
     ContactsView(
         store: InMemoryConnectionStore(seed: [
             Connection(id: UUID(), cardId: UUID(), name: "Mara Lindqvist",
+                       firstName: "Mara", lastName: "Lindqvist",
                        email: "mara@example.com", phone: "+49 170 1234567",
                        company: "Northwind Studio", note: "Auf der Messe getroffen.",
                        createdAt: Date().addingTimeInterval(-3600)),
             Connection(id: UUID(), cardId: UUID(), name: "Tomás Berg",
+                       firstName: nil, lastName: nil,
                        email: nil, phone: "+49 151 9876543",
                        company: nil, note: nil,
                        createdAt: Date().addingTimeInterval(-86_400 * 2))

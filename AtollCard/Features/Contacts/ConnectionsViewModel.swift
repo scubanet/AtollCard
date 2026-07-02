@@ -21,4 +21,13 @@ final class ConnectionsViewModel: ObservableObject {
             errorMessage = error.localizedDescription
         }
     }
+
+    func delete(_ id: UUID) async {
+        do {
+            try await store.delete(id)
+            connections = try await store.connections(forOwner: ownerId)
+        } catch {
+            errorMessage = error.localizedDescription
+        }
+    }
 }
