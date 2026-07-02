@@ -33,6 +33,7 @@ jobs:
           npm run build
           cp dist/index.html dist/404.html
           echo "card.atoll-os.com" > dist/CNAME
+          touch dist/.nojekyll
 
       - name: Push dist to atollcard-web
         env:
