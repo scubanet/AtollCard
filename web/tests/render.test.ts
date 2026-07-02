@@ -14,10 +14,11 @@ describe('renderCard', () => {
     expect(html).toContain('Jane Doe'); expect(html).toContain('CTO'); expect(html).toContain('Acme')
   })
   it('renders a save-contact button', () => { expect(renderCard(card)).toContain('id="save-contact"') })
-  it('renders the connect form with a required name input', () => {
+  it('renders the connect form with required first and last name inputs', () => {
     const html = renderCard(card)
     expect(html).toContain('id="connect-form"')
-    expect(html).toMatch(/<input id="c-name"[^>]*\srequired/)
+    expect(html).toMatch(/<input id="c-firstname"[^>]*\srequired/)
+    expect(html).toMatch(/<input id="c-lastname"[^>]*\srequired/)
   })
   it('applies the per-card accent color', () => { expect(renderCard(card)).toContain('--accent:#0E7C86') })
   it('renders cover and avatar images when present', () => {

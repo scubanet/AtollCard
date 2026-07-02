@@ -47,8 +47,10 @@ export function renderCard(card: PublicCard): string {
     <button id="save-contact" type="button">Kontakt speichern</button>
     <button id="connect-toggle" type="button" aria-expanded="false" aria-controls="connect-form">Verbinden</button>
     <form id="connect-form" class="connect" hidden aria-label="Verbinden">
-      <label class="connect-label" for="c-name">Name</label>
-      <input id="c-name" name="name" type="text" placeholder="Name" autocomplete="name" required />
+      <label class="connect-label" for="c-firstname">Vorname</label>
+      <input id="c-firstname" name="firstname" type="text" placeholder="Vorname" autocomplete="given-name" required />
+      <label class="connect-label" for="c-lastname">Name</label>
+      <input id="c-lastname" name="lastname" type="text" placeholder="Name" autocomplete="family-name" required />
       <label class="connect-label" for="c-email">E-Mail</label>
       <input id="c-email" name="email" type="email" placeholder="E-Mail" autocomplete="email" />
       <label class="connect-label" for="c-phone">Telefon</label>

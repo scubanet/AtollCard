@@ -51,7 +51,7 @@ async function boot() {
     const willShow = connectForm.hidden
     connectForm.hidden = !willShow
     connectToggle.setAttribute('aria-expanded', String(willShow))
-    if (willShow) (document.getElementById('c-name') as HTMLInputElement | null)?.focus()
+    if (willShow) (document.getElementById('c-firstname') as HTMLInputElement | null)?.focus()
   })
 
   connectForm?.addEventListener('submit', async (e) => {
@@ -65,7 +65,8 @@ async function boot() {
     if (!consent) { setStatus('Bitte stimme der Übermittlung zu.'); return }
 
     const payload: ConnectPayload = {
-      name: val('c-name'),
+      firstName: val('c-firstname'),
+      lastName: val('c-lastname'),
       email: val('c-email') || undefined,
       phone: val('c-phone') || undefined,
       company: val('c-company') || undefined,
