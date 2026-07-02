@@ -173,7 +173,9 @@ export type Database = {
           company: string | null
           created_at: string
           email: string | null
+          first_name: string | null
           id: string
+          last_name: string | null
           name: string
           note: string | null
           phone: string | null
@@ -184,7 +186,9 @@ export type Database = {
           company?: string | null
           created_at?: string
           email?: string | null
+          first_name?: string | null
           id?: string
+          last_name?: string | null
           name: string
           note?: string | null
           phone?: string | null
@@ -195,7 +199,9 @@ export type Database = {
           company?: string | null
           created_at?: string
           email?: string | null
+          first_name?: string | null
           id?: string
+          last_name?: string | null
           name?: string
           note?: string | null
           phone?: string | null
@@ -256,7 +262,9 @@ export type Database = {
           p_coarse_geo?: string
           p_company?: string
           p_email?: string
-          p_name: string
+          p_first_name?: string
+          p_last_name?: string
+          p_name?: string
           p_note?: string
           p_phone?: string
           p_slug: string
